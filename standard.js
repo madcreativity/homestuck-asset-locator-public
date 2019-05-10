@@ -1,3 +1,6 @@
+const { google } = require('googleapis');
+const { fs } = require('fs');
+
 // System variables
 let version = "beta v0.1";
 
@@ -31,49 +34,60 @@ var setState = (state) => {
 }
 
 
-// Google Sheets JS Example
-var clientMail;
-var privateKey;
-
-// TODO: Initialize clientMail and privateKey from JSON file
-
+// Google Sheets methods
 var spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
 
-const {google} = require('googleapis');
-const client = new google.auth.JWT(
-    clientMail,
-    null,
-    privateKey,
-    ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/spreadsheets.readonly'],
-    null
-);
-new Promise((resolve, reject) => {
-    client.authorize((err, tokens) => {
-        if (err) {
-            reject(err);
-        } else {
-            google.options({
-                auth: client
-            });
-            resolve();
-        }
+
+// Load credentials
+var getCredentials = (credentialsPath) => {
+    let rawData = fs.readFileSync(credentialsPath);
+    let parsedData = JSON.parse(rawData);
+
+    return [ parsedData.client_email, parsedData.private_key ];
+}
+
+var getAuthorization = (clientMail, privateKey) => {
+    var client = new google.auth.JWT(
+        clientMail,
+        null,
+        privateKey,
+        ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/spreadsheets.readonly'],
+        null
+    );
+
+    new Promise((resolve, reject) => {
+        client.authorize((err, tokens) => {
+            if (err) {
+                reject(err);
+            } else {
+                google.options({
+                    auth: client
+                });
+                resolve();
+            }
+        });
     });
-});
 
-const sheets = google.sheets({
-    version: 'v4',
-    auth: client
-});
+    return client;
+}
 
+var connectSheetsService = (client) => {
+    return sheets = google.sheets({
+        version: 'v4',
+        auth: client
+    });
+}
 
-var request = sheets.spreadsheets.values.get({
-    spreadsheetId: spreadsheet,
-    range: "1:1",
-    valueRenderOption: 'UNFORMATTED_VALUE'
-});
+var getFieldData = (sheetsService, range) => { 
+    let request = sheetsService.spreadsheets.values.get({
+        spreadsheetId: spreadsheet,
+        range: range
+    });
 
-request.then(function(response) {
-    console.log(response.data.values);
-  }, function(reason) {
-    console.error('error: ' + reason.result.error.message);
-  });
+    request.then((response) => {
+        return response;
+    }, (reason) => {
+        console.error('error: ' + reason.result.error.message);
+        return null;
+    });
+}
