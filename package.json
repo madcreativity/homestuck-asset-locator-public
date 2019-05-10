@@ -1,0 +1,21 @@
+{
+  "name": "homestuck-asset-locator",
+  "version": "1.0.0",
+  "description": "A fanmade tool to assist the Homestuck community with finding specific assets.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/madcreativity/homestuck-asset-locator.git"
+  },
+  "author": "MadCreativity",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^5.0.1"
+  },
+  "dependencies": {
+    "googleapis": "^39.2.0"
+  }
+}

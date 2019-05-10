@@ -1,0 +1,63 @@
+/* Local */
+#upperSegment {
+    display: flex;
+    width: 100%;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
+#upperSegment > a {
+    position: absolute;
+    left: 0;
+}
+
+#tagControl {
+    position: relative;
+    width: 100%;
+}
+
+#pageControl {
+    display: flex;
+    align-items: center;
+}
+
+#pageControl button {
+    margin: 0 5px;
+}
+
+#contentControl {
+    display: flex;
+    justify-content: space-around;
+}
+
+#showContainer {
+    display: flex;
+    justify-content: space-around;
+}
+
+#contentContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+}
+
+#tagContainer {
+    position: relative;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+}
+
+#searchIcon {
+    background: none;
+    border: none;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    height: calc(100% - 10px);
+}
+
+#searchIcon img {
+    height: 100%;
+}

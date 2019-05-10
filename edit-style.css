@@ -1,0 +1,57 @@
+/* Local */
+#upperSegment {
+    display: flex;
+    width: 100%;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
+#upperSegment > a {
+    position: absolute;
+    left: 0;
+}
+
+#lowerSegment {
+    margin-top: 10px;
+}
+
+#lowerSegmentControlsMiddle {
+    display: flex;
+    justify-content: center;
+}
+
+#tagField {
+    max-width: 650px;
+    width: 100%;
+    resize: vertical;
+}
+
+#pageField {
+    max-width: 125px;
+}
+
+#idField {
+    max-width: 75px;
+}
+
+#lowerSegmentControlsBottom {
+    display: flex;
+    max-width: 650px;
+    width: 100%;
+    flex-direction: column;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+.std-btn-center {
+    margin: 5px auto;
+}
+
+.std-btn-no-margin {
+    margin: 0;
+}
+
+#contentController {
+    margin: 5px 0;
+}

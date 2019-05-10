@@ -1,0 +1,17 @@
+/* Local */
+#logo {
+    width: 50%;
+}
+
+#main-btn-container {
+    width: 100%;
+}
+
+#main-btn-container .std-btn {
+    margin-top: 50px;
+    width: 50%;
+}
+
+#main-btn-container .std-btn:first-child {
+    margin-top: 150px;
+}

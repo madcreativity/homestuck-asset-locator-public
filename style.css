@@ -1,0 +1,169 @@
+/* Base */
+body {
+    background-color: #535353;
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+input:focus, button:focus {
+    outline: none;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
+    padding: 5px;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
+
+h1 {
+    font-size: 36px;
+    text-align: center;
+}
+
+#state {
+    color: #4AC925;
+}
+
+#version {
+    color: white;
+}
+
+main {
+    max-width: 80%;
+    width: 100%;
+    margin: 0 auto;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 0 50px;
+    background-color: #c6c6c6;
+}
+
+#slide {
+    width: 100%;
+    margin: 0 auto;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 0 25px 20px 25px;
+    background-color: #eeeeee;
+    text-align: center;
+    position: relative;
+}
+
+.std-label {
+    font-size: 22px;
+    color: black;
+    display: inline-block;
+}
+
+.std-text {
+    border: 1px solid #535353;
+    background-color: #F8F8F8;
+    padding: 4px 16px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 22px;
+    font-weight: normal;
+    color: black;
+    text-decoration: none;
+    box-sizing: border-box;
+    display: inline-block;
+}
+
+.std-textarea {
+    border: 1px solid #535353;
+    background-color: #F8F8F8;
+    padding: 4px 16px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 22px;
+    font-weight: normal;
+    color: black;
+    text-decoration: none;
+    display: inline-block;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.std-btn {
+    border: 1px solid #535353;
+    background-color: #F8F8F8;
+    padding: 4px 16px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 22px;
+    font-weight: normal;
+    color: black;
+    text-decoration: none;
+    display: inline-block;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+
+.std-btn:hover {
+    background-color: #535353;
+    color: #F8F8F8;
+    cursor: pointer;
+}
+
+.classic-btn {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 22px;
+    font-weight: normal;
+    color: #0000EE;
+    text-decoration: none;
+}
+
+.classic-btn:hover {
+    text-decoration: underline;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.--small {
+    font-size: 18px;
+    padding: 2px 5px;
+}
+
+.std-checkbox {
+    visibility: hidden;
+    position: relative;
+}
+
+.std-checkbox::before {
+    content: "";
+    visibility: visible;
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    top: 0;
+    left: 0;
+    border: 1px solid #000;
+    border-radius: 50px;
+    z-index: 5;
+    background-color: #f8f8f8;
+    box-sizing: border-box;
+}
+
+.std-checkbox:checked::after {
+    content: "";
+    visibility: visible;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: 4px;
+    left: 4px;
+    background-color: #000;
+    border-radius: 50px;
+    z-index: 10;
+    box-sizing: border-box;
+}

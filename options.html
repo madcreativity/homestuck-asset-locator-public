@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+
+        <link rel="stylesheet" href="./style.css">
+        <link rel="stylesheet" href="./options-style.css">
+
+        <title>Homestuck Asset Locator - Options</title>
+    </head>
+    <body>
+        <header>
+            <p id="state">Idle</p>
+            <p id="version">v0.1</p>
+        </header>
+
+        <main>
+            <div id="slide">
+                <div id="upperSegment">
+                    <a href="./index.html" class="classic-btn">&lt; Back</a>
+                    <h1>Options</h1>
+                </div>
+                <div id="lowerSegment">
+                    <div class="optionContainer">
+                        <label class="std-label">Default Origin(s):</label>
+                        <input type="text" placeholder="Homestuck" id="defaultOriginOption" class="std-text">
+                    </div>
+
+                    <div class="optionContainer">
+                        <label class="std-label">GIF Animations:</label>
+                        <button id="gifAnimationsOption" class="std-btn">Always</button>
+                    </div>
+
+                    <div class="optionContainer">
+                        <label class="std-label">Offline Mode:</label>
+                        <button id="offlineModeOption" class="std-btn">No</button>
+                    </div>
+
+                    <button class="std-btn full-width">Offline Mode Preparation</button>
+
+                    <button class="std-btn full-width">Update Local Metatag Data</button>
+                </div>
+            </div>
+        </main>
+
+
+        <script>require('./standard.js');</script>
+    </body>
+</html>
