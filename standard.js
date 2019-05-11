@@ -46,6 +46,7 @@ var getCredentials = (credentialsPath) => {
     return [ parsedData.client_email, parsedData.private_key ];
 }
 
+// Get authorization
 var getAuthorization = (clientMail, privateKey) => {
     var client = new google.auth.JWT(
         clientMail,
@@ -71,6 +72,7 @@ var getAuthorization = (clientMail, privateKey) => {
     return client;
 }
 
+// Connect to sheets service
 var connectSheetsService = (client) => {
     return sheets = google.sheets({
         version: 'v4',
@@ -78,10 +80,57 @@ var connectSheetsService = (client) => {
     });
 }
 
-var getFieldData = (sheetsService, range) => { 
+// Get data from field range
+var getFieldData = (sheetsService, spreadsheet, range) => { 
     let request = sheetsService.spreadsheets.values.get({
         spreadsheetId: spreadsheet,
         range: range
+    });
+
+    request.then((response) => {
+        return response;
+    }, (reason) => {
+        console.error('error: ' + reason.result.error.message);
+        return null;
+    });
+}
+
+// Get data from multiple field ranges
+var getFieldDataMultiple = (sheetsService, spreadsheet, range) => { 
+    let request = sheetsService.spreadsheets.values.batchGet({
+        spreadsheetId: spreadsheet,
+        range: range
+    });
+
+    request.then((response) => {
+        return response;
+    }, (reason) => {
+        console.error('error: ' + reason.result.error.message);
+        return null;
+    });
+}
+
+// Write data to field range
+var writeFieldData = (sheetsService, spreadsheet, range, values) => {
+    let request = sheetsService.spreadsheets.values.update({
+        spreadsheetId: spreadsheet,
+        range: range
+    }, values);
+
+    request.then((response) => {
+        return response;
+    }, (reason) => {
+        console.error('error: ' + reason.result.error.message);
+        return null;
+    });
+}
+
+// Write data to multiple field ranges
+var writeFieldDataMultiple = (sheetsService, spreadsheet, range, values) => {
+    let request = sheetsService.spreadsheets.values.batchUpdate({
+        spreadsheetId: spreadsheet,
+        range: range,
+        data: values
     });
 
     request.then((response) => {
