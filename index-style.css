@@ -1,17 +1,166 @@
-/* Local */
-#logo {
+/* Index */
+#page-index #logo {
     width: 50%;
 }
 
-#main-btn-container {
+#page-index #main-btn-container {
     width: 100%;
 }
 
-#main-btn-container .std-btn {
+#page-index #main-btn-container .std-btn {
     margin-top: 50px;
     width: 50%;
 }
 
-#main-btn-container .std-btn:first-child {
+#page-index #main-btn-container .std-btn:first-child {
     margin-top: 150px;
+}
+
+
+/* Search */
+#page-search #upperSegment {
+    display: flex;
+    width: 100%;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
+#page-search #upperSegment > .goto-btn {
+    position: absolute;
+    left: 0;
+}
+
+#page-search #tagControl {
+    position: relative;
+    width: 100%;
+}
+
+#page-search #pageControl {
+    display: flex;
+    align-items: center;
+}
+
+#page-search #pageControl button {
+    margin: 0 5px;
+}
+
+#page-search #contentControl {
+    display: flex;
+    justify-content: space-around;
+}
+
+#page-search #showContainer {
+    display: flex;
+    justify-content: space-around;
+}
+
+#page-search #contentContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+}
+
+#page-search #tagContainer {
+    position: relative;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+}
+
+#page-search #searchIcon {
+    background: none;
+    border: none;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    height: calc(100% - 10px);
+}
+
+#page-search #searchIcon img {
+    height: 100%;
+}
+
+
+/* Edit */
+#page-edit #upperSegment {
+    display: flex;
+    width: 100%;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
+#page-edit #upperSegment > .goto-btn {
+    position: absolute;
+    left: 0;
+}
+
+#page-edit #lowerSegment {
+    margin-top: 10px;
+}
+
+#page-edit #lowerSegmentControlsMiddle {
+    display: flex;
+    justify-content: center;
+}
+
+#page-edit #tagField {
+    max-width: 650px;
+    width: 100%;
+    resize: vertical;
+}
+
+#page-edit #pageField {
+    max-width: 125px;
+}
+
+#page-edit #idField {
+    max-width: 75px;
+}
+
+#page-edit #lowerSegmentControlsBottom {
+    display: flex;
+    max-width: 650px;
+    width: 100%;
+    flex-direction: column;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+#page-edit .std-btn-center {
+    margin: 5px auto;
+}
+
+#page-edit .std-btn-no-margin {
+    margin: 0;
+}
+
+#page-edit #contentController {
+    margin: 5px 0;
+}
+
+
+/* Options */
+#page-options #upperSegment {
+    display: flex;
+    width: 100%;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
+#page-options #upperSegment > .goto-btn {
+    position: absolute;
+    left: 0;
+}
+
+#page-options #lowerSegment {
+    margin-top: 125px;
+}
+
+#page-options .optionContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }

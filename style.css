@@ -5,6 +5,7 @@ body {
     font-family: 'Courier New', Courier, monospace;
     font-weight: bold;
     font-size: 14px;
+    overflow-y: scroll;
 }
 
 input:focus, button:focus {
@@ -119,10 +120,13 @@ main {
     font-weight: normal;
     color: #0000EE;
     text-decoration: none;
+    background-color: transparent;
+    border: none;
 }
 
 .classic-btn:hover {
     text-decoration: underline;
+    cursor: pointer;
 }
 
 .full-width {
@@ -166,4 +170,12 @@ main {
     border-radius: 50px;
     z-index: 10;
     box-sizing: border-box;
+}
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
 }

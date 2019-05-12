@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="./style.css">
         <link rel="stylesheet" href="./index-style.css">
 
-        <title>Homestuck Asset Locator - Home</title>
+        <title>Homestuck Asset Locator</title>
     </head>
     <body>
         <header>
@@ -16,13 +16,119 @@
 
         <main>
             <div id="slide">
-                <img id="logo" src="./assets/hal-logo.png">
+                <!-- Index start -->
+                <div id="page-index" class="visible">
+                    <img id="logo" src="./assets/hal-logo.png">
 
-                <div id="main-btn-container">
-                    <a href="./search.html" class="std-btn">Search Using Tags</a>
-                    <a href="./edit.html" class="std-btn">Edit Tags</a>
-                    <a href="./options.html" class="std-btn">Options</a>
+                    <div id="main-btn-container">
+                        <button class="goto-search-btn goto-btn std-btn">Search Using Tags</button>
+                        <button class="goto-edit-btn goto-btn std-btn">Edit Tags</button>
+                        <button class="goto-options-btn goto-btn std-btn">Options</button>
+                    </div>
                 </div>
+                <!-- Index end-->
+
+                <!-- Search start-->
+                <div id="page-search" class="hidden">
+                    <div id="upperSegment">
+                        <button class="goto-index-btn goto-btn classic-btn">&lt; Back</button>
+                        <h1>Search Using Tags</h1>
+                    </div>
+                    <div id="lowerSegment">
+                        <div id="contentControl">
+                            <input type="text" class="std-text --small" placeholder="adventure/origin">
+    
+                            <div id="pageControl">
+                                <button id="pageBack" class="std-btn --small">&lt;</button>
+                                <p id="pageNum">1/1</p>
+                                <button id="pageNext" class="std-btn --small">&gt;</button>
+                            </div>
+                        </div>
+    
+                        <div id="tagContainer">
+                            <input type="text" id="tagControl" class="std-text" placeholder="ex. Jade --John, Act 6 | Intermission 3">
+                            <button id="searchIcon"><img src="./assets/search-icon.png"></button>
+                        </div>
+    
+                        <div id="showContainer">
+                            <div>
+                                <input id="showPanels" type="checkbox" class="std-checkbox">
+                                <label for="showPanels">Show Panels</label>
+                            </div>
+    
+                            <div>
+                                <input id="showFlashes" type="checkbox" class="std-checkbox">
+                                <label for="showFlashes">Show Flashes</label>
+                            </div>
+                        </div>
+    
+                        <div id="contentContainer">
+    
+                        </div>
+                    </div>
+                </div>
+                <!-- Search end-->
+
+                <!-- Edit start -->
+                <div id="page-edit" class="hidden">
+                    <div id="upperSegment">
+                        <button class="goto-index-btn goto-btn classic-btn">&lt; Back</button>
+                        <h1>Edit Tags</h1>
+                    </div>
+                    <div id="lowerSegment">
+                        <div id="lowerSegmentControlsTop">
+                            <button class="std-btn --small">&lt;</button>
+                            <input type="text" class="std-text --small" placeholder="adventure/origin">
+                            <button class="std-btn --small">&gt;</button>
+                            <div id="contentController">
+                                <input type="text" class="std-text --small" id="pageField" placeholder="ex. 2427">
+                                <input type="text" class="std-text --small" id="idField" placeholder="ex. 1">
+                                <button class="std-btn --small std-btn-no-margin">Select</button>
+                            </div>
+                        </div>
+    
+                        <div id="lowerSegmentControlsMiddle">
+                            <div id="contentContainer">
+                                <img src="https://www.homestuck.com/images/storyfiles/hs2/00001.gif">
+                            </div>
+                        </div>
+    
+                        <div id="lowerSegmentControlsBottom">
+                            <textarea class="std-textarea --small" id="tagField" placeholder="ex. John, Act 6, Poster, Intermission"></textarea>
+                            <button class="std-btn --small std-btn-center">Apply Edits</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Edit end -->
+
+                <!-- Options start-->
+                <div id="page-options" class="hidden">
+                    <div id="upperSegment">
+                        <button class="goto-index-btn goto-btn classic-btn">&lt; Back</button>
+                        <h1>Options</h1>
+                    </div>
+                    <div id="lowerSegment">
+                        <div class="optionContainer">
+                            <label class="std-label">Default Origin(s):</label>
+                            <input type="text" placeholder="Homestuck" id="defaultOriginOption" class="std-text">
+                        </div>
+    
+                        <div class="optionContainer">
+                            <label class="std-label">GIF Animations:</label>
+                            <button id="gifAnimationsOption" class="std-btn">Always</button>
+                        </div>
+    
+                        <div class="optionContainer">
+                            <label class="std-label">Offline Mode:</label>
+                            <button id="offlineModeOption" class="std-btn">No</button>
+                        </div>
+    
+                        <button class="std-btn full-width">Offline Mode Preparation</button>
+    
+                        <button class="std-btn full-width">Update Local Metatag Data</button>
+                    </div>
+                </div>
+                <!-- Options end -->
             </div>
         </main>
 
