@@ -1,21 +1,30 @@
 body {
     margin: 0;
-    background-color: #202020;
-    color: white;
+    color: #000;
     font-family: 'Courier New', Courier, monospace;
     font-weight: bold;
     font-size: 14px;
+    height: 100vh;
 }
 
 main {
+    background-color: #535353;
+    box-sizing: border-box;
+    padding: 12px;
+    height: 100%;
+}
+
+#slide {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
     text-align: center;
-    height: 100vh;
+    height: 100%;
     box-sizing: border-box;
     padding: 20px;
+    background-color: #eee;
+    border: 30px solid #c6c6c6;
 }
 
 main img, main h2 {

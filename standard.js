@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Finished loading - close loading window and show main window
+    // Finished loading
     const remote = require('electron').remote;
 
     let win = remote.getGlobal('win');
