@@ -1,7 +1,9 @@
-const { app, BrowserWindow } = require('electron');
+const { ipcMain, app, BrowserWindow } = require('electron');
 
 let loadingWin;
 let win;
+
+let loadingComplete = false;
 
 var createLoadingWindow = () => {
     // Create loading window
@@ -21,6 +23,17 @@ var createLoadingWindow = () => {
 
     global.loadingWin = loadingWin;
 
+    // Execute when window is closed
+    loadingWin.on('closed', () => {
+        // Dereference window
+        loadingWin = null;
+        
+        if(win !== null && !loadingComplete) {
+            win.close();
+        }
+    });
+
+
     createMainWindow();
 }
 
@@ -36,18 +49,24 @@ var createMainWindow = () => {
         icon: __dirname + '/assets/icon.ico',
         show: false
     });
-
+    
     // Load index.html
     win.loadFile('./index.html');
-
+    
     // Execute when window is closed
     win.on('closed', () => {
         // Dereference window
         win = null;
-    })
-
+    });
+    
     global.win = win;
 }
+
+ipcMain.on('request-mainprocess-action', (event, arg) => {
+    if(arg.message == "endLoading") {
+        loadingComplete = true;
+    }
+});
 
 app.on('ready', createLoadingWindow);
 
@@ -56,12 +75,11 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
-})
-  
+});
+
 app.on('activate', () => {
     // macOS "undocking"
-    if (win === null) {
-        createMainWindow()
+    if (win === null && loadingWin === null) {
+        createLoadingWindow();
     }
-})
-  
+});

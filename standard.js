@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     
     // Google Sheets methods
-    const google = require('googleapis');
+    const {google} = require('googleapis');
     const fs = require('fs');
     var spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
 
@@ -170,9 +170,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Finished loading
     const remote = require('electron').remote;
+    const {ipcRenderer} = require('electron');
 
     let win = remote.getGlobal('win');
     let loadingWin = remote.getGlobal('loadingWin');
+
+    ipcRenderer.send('request-mainprocess-action', {
+        message: "endLoading"
+    });
 
     loadingWin.close();
     win.show();
