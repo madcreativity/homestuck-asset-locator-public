@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     const remote = require('electron').remote;
+    const app = remote.app;
     const {ipcRenderer} = require('electron');
     const {google} = require('googleapis');
     const fs = require('fs');
+    const fsPromises = fs.promises;
 
     let win = remote.getGlobal('win');
     let loadingWin = remote.getGlobal('loadingWin');
@@ -14,8 +16,56 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Ensure that required files exist - if not, create them
+    var createDirectory = async (dirpath) => {
+        try {
+            await fsPromises.mkdir(dirpath, {
+                recursive: true
+            });
+        } catch (err) {
+            if (err.code !== 'EEXIST') throw err;
+        }
+    }
 
-    updateLoadingMessage('Applying interaction technologies');
+    var fileExists = (path) => {
+        try {
+            if (fs.existsSync(path)) {
+                return true;
+            }
+        } catch(err) {
+            console.error(err);
+            return false;
+        }
+    }
+    
+    // Folder structure
+    updateLoadingMessage('Creating folder & file structure');
+
+    let assetPath = app.getPath('userData') + "\\assets";
+
+    // Asset directory
+    createDirectory(assetPath);
+    
+    // Settings file
+    if(!fileExists(assetPath + "\\settings.txt")) {
+        let fileStream = fs.createWriteStream(assetPath + "\\settings.txt", {
+            flags: 'a'
+        })
+
+        fileStream.write("False,");
+        fileStream.write("Homestuck,");
+        fileStream.write("Auto");
+
+        fileStream.end();
+    }
+
+    // Metatag cache
+    if(!fileExists(assetPath + "\\metatags.txt")) {
+        fs.writeFileSync(assetPath + "\\metatags.txt", "");
+    }
+
+    
+    updateLoadingMessage('Setting up');
 
     // System variables
     let version = "beta v0.1";
@@ -48,6 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
             break;
         }
     }
+
+
+    updateLoadingMessage('Applying interaction logic');
 
     // Page transition buttons
     let DOMindexPage = document.querySelector("#page-index");
