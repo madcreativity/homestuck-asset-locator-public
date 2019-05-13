@@ -56,6 +56,7 @@ var createMainWindow = () => {
     // Execute when window is closed
     win.on('closed', () => {
         // Dereference window
+        loadingWin = null;
         win = null;
     });
     
@@ -65,6 +66,8 @@ var createMainWindow = () => {
 ipcMain.on('request-mainprocess-action', (event, arg) => {
     if(arg.message == "endLoading") {
         loadingComplete = true;
+    } else if(arg.message == "updateLoadingText") {
+        loadingWin.webContents.executeJavaScript('document.querySelector("h2").textContent = "' + arg.data + '";');
     }
 });
 

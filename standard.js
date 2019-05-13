@@ -1,4 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const remote = require('electron').remote;
+    const {ipcRenderer} = require('electron');
+    const {google} = require('googleapis');
+    const fs = require('fs');
+
+    let win = remote.getGlobal('win');
+    let loadingWin = remote.getGlobal('loadingWin');
+
+    var updateLoadingMessage = (loadingMessage) => {
+        ipcRenderer.send('request-mainprocess-action', {
+            message: "updateLoadingText",
+            data: loadingMessage
+        });
+    }
+
+
+    updateLoadingMessage('Applying interaction technologies');
+
     // System variables
     let version = "beta v0.1";
     
@@ -59,8 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     
     // Google Sheets methods
-    const {google} = require('googleapis');
-    const fs = require('fs');
+    updateLoadingMessage('Connecting to Google Sheets');
+
     var spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
 
 
@@ -169,12 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Finished loading
-    const remote = require('electron').remote;
-    const {ipcRenderer} = require('electron');
-
-    let win = remote.getGlobal('win');
-    let loadingWin = remote.getGlobal('loadingWin');
-
     ipcRenderer.send('request-mainprocess-action', {
         message: "endLoading"
     });
