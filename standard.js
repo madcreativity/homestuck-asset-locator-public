@@ -9,7 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let win = remote.getGlobal('win');
     let loadingWin = remote.getGlobal('loadingWin');
 
-    var updateLoadingMessage = (loadingMessage) => {
+    // System variables
+    let version = "beta v0.1";
+    let settings = [];
+
+    // Loading message updater
+    let updateLoadingMessage = (loadingMessage) => {
         ipcRenderer.send('request-mainprocess-action', {
             message: "updateLoadingText",
             data: loadingMessage
@@ -17,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Ensure that required files exist - if not, create them
-    var createDirectory = async (dirpath) => {
+    let createDirectory = async (dirpath) => {
         try {
             await fsPromises.mkdir(dirpath, {
                 recursive: true
@@ -27,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    var fileExists = (path) => {
+    let fileExists = (path) => {
         try {
             if (fs.existsSync(path)) {
                 return true;
@@ -59,16 +64,18 @@ document.addEventListener('DOMContentLoaded', () => {
         fileStream.end();
     }
 
+    // Load settings
+    settings = fs.readFileSync(assetPath + "\\settings.txt").toString().split(',');
+
+    
     // Metatag cache
     if(!fileExists(assetPath + "\\metatags.txt")) {
         fs.writeFileSync(assetPath + "\\metatags.txt", "");
     }
-
+    
     
     updateLoadingMessage('Setting up');
 
-    // System variables
-    let version = "beta v0.1";
     
     // Load version
     let DOMversion = document.querySelector("#version");
@@ -78,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set idle state
     let DOMstate = document.querySelector("#state");
     
-    var setState = (state) => {
+    let setState = (state) => {
         DOMstate.textContent = state;
         
         switch(state) {
@@ -132,20 +139,46 @@ document.addEventListener('DOMContentLoaded', () => {
     // Google Sheets methods
     updateLoadingMessage('Connecting to Google Sheets');
 
-    var spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
+    let spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
+
+
+    let credentials;
+    let client;
+    let sheetsService;
+
+    if(settings[0] == "False") {
+        let googleSheetsConnected = true;
+
+        try {
+            credentials = getCredentials("./volunteer.json");
+            client = getClient(credentials[0], credentials[1]);
+            sheetsService = connectSheetsService(client);
+        }
+        catch(err) {
+            googleSheetsConnected = false;
+        }
+
+        if(googleSheetsConnected) {
+            updateLoadingMessage("Succesfully connected to Google Sheets");
+        } else {
+            updateLoadingMessage("Could not connect to Google Sheets");
+        }
+    } else {
+        setState("Offline");
+    }
 
 
     // Load credentials
-    var getCredentials = (credentialsPath) => {
+    let getCredentials = (credentialsPath) => {
         let rawData = fs.readFileSync(credentialsPath);
         let parsedData = JSON.parse(rawData);
 
         return [ parsedData.client_email, parsedData.private_key ];
     }
 
-    // Get authorization
-    var getAuthorization = (clientMail, privateKey) => {
-        var client = new google.auth.JWT(
+    // Get client
+    let getClient = (clientMail, privateKey) => {
+        let client = new google.auth.JWT(
             clientMail,
             null,
             privateKey,
@@ -170,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Connect to sheets service
-    var connectSheetsService = (client) => {
+    let connectSheetsService = (client) => {
         return sheets = google.sheets({
             version: 'v4',
             auth: client
@@ -178,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Get data from field range
-    var getFieldData = (sheetsService, spreadsheet, range) => { 
+    let getFieldData = (sheetsService, spreadsheet, range) => { 
         let request = sheetsService.spreadsheets.values.get({
             spreadsheetId: spreadsheet,
             range: range
@@ -193,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Get data from multiple field ranges
-    var getFieldDataMultiple = (sheetsService, spreadsheet, range) => { 
+    let getFieldDataMultiple = (sheetsService, spreadsheet, range) => { 
         let request = sheetsService.spreadsheets.values.batchGet({
             spreadsheetId: spreadsheet,
             range: range
@@ -208,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Write data to field range
-    var writeFieldData = (sheetsService, spreadsheet, range, values) => {
+    let writeFieldData = (sheetsService, spreadsheet, range, values) => {
         let request = sheetsService.spreadsheets.values.update({
             spreadsheetId: spreadsheet,
             range: range
@@ -223,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Write data to multiple field ranges
-    var writeFieldDataMultiple = (sheetsService, spreadsheet, range, values) => {
+    let writeFieldDataMultiple = (sheetsService, spreadsheet, range, values) => {
         let request = sheetsService.spreadsheets.values.batchUpdate({
             spreadsheetId: spreadsheet,
             range: range,
