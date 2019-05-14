@@ -137,3 +137,8 @@
     max-width: 700px;
     width: 100%;
 }
+
+#page-options #saveBtn {
+    max-width: 200px;
+    margin-top: 50px;
+}
