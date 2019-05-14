@@ -179,3 +179,16 @@ main {
 .visible {
     display: block;
 }
+
+#upperSegment {
+    display: flex;
+    width: 100%;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
+#upperSegment > .goto-btn {
+    position: absolute;
+    left: 0;
+}
