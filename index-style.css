@@ -124,4 +124,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 10px;
+}
+
+#page-options #lowerSegment .optionContainer .std-btn {
+    margin-top: 0;
+    width: 150px;
+}
+
+#page-options .optionButtonContainer {
+    margin-top: 20px;
 }
