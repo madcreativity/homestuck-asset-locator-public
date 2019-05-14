@@ -134,6 +134,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Switch option buttons
+    let DOMswitchOptionButtons = document.querySelectorAll(".switch-btn");
+    DOMswitchOptionButtons.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            let items = e.target.getAttribute("data-options").split(',');
+            let curIndex = items.indexOf(e.target.textContent);
+
+            if(curIndex < items.length - 1) {
+                curIndex++;
+            } else {
+                curIndex = 0;
+            }
+
+
+            e.target.textContent = items[curIndex];
+        });
+    });
     
     
     // Google Sheets methods

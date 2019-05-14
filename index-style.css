@@ -133,5 +133,7 @@
 }
 
 #page-options .optionButtonContainer {
-    margin-top: 20px;
+    margin: 20px auto 0 auto;
+    max-width: 700px;
+    width: 100%;
 }

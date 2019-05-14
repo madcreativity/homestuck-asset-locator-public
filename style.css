@@ -122,6 +122,7 @@ main {
     text-decoration: none;
     background-color: transparent;
     border: none;
+    padding: 0;
 }
 
 .classic-btn:hover {
