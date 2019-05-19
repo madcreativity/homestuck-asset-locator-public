@@ -43,6 +43,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Method to create alert
+    let createAlert = (title, content) => {
+        if(document.querySelector(".alertBack") === null) {
+            // Element setup
+            let alertBackElement = document.createElement("div");
+            let alertContainerElement = document.createElement("div");
+            let alertTitleElement = document.createElement("p");
+            let alertInnerElement = document.createElement("div");
+            let alertContentElement = document.createElement("p");
+            let alertCloseBtnElement = document.createElement("button");
+
+            // Apply classes
+            alertBackElement.className = "alertBack";
+            alertContainerElement.className = "alertContainer";
+
+            alertTitleElement.className = "alertTitle";
+            alertInnerElement.className = "alertInner";
+
+            // Other attributes
+            alertTitleElement.textContent = title;
+            alertContentElement.textContent = content;
+            alertCloseBtnElement.textContent = "Close";
+
+            // Event listeners
+            alertCloseBtnElement.addEventListener('click', () => {
+                document.body.removeChild(document.querySelector(".alertBack"));
+            });
+
+            // Element structure
+            alertInnerElement.appendChild(alertContentElement);
+            alertInnerElement.appendChild(alertCloseBtnElement);
+
+            alertContainerElement.appendChild(alertTitleElement);
+            alertContainerElement.appendChild(alertInnerElement);
+
+            alertBackElement.appendChild(alertContainerElement);
+
+            document.body.appendChild(alertBackElement);
+        }
+    }
+
     // Google Service object
     function GoogleService() {
         this.service = null;
@@ -263,6 +304,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Options: Reconnect to service
+    let DOMreconnectServiceOptionBtn = document.querySelector("#reconnectServiceOptionBtn");
+    DOMreconnectServiceOptionBtn.addEventListener('click', () => {
+        if(settings[0] == "Off") {
+            let googleSheetsConnected = true;
+            
+            try {
+                googleObject.createClient("volunteer.json");
+                googleObject.connectSheetsService();
+            }
+            catch(err) {
+                googleSheetsConnected = false;
+                console.error(err);
+            }
+    
+            if(googleSheetsConnected) {
+                setState("Online");
+            }
+        } else {
+            setState("Offline");
+
+            createAlert("Error", "Could not connect to Google Sheets");
+        }
+    });
+
     // Page loading function
     let loadPage = () => {
         
@@ -283,6 +349,10 @@ document.addEventListener('DOMContentLoaded', () => {
           + DOMdefaultOriginOption.value + ","
           + DOMgifAnimationsOption.textContent
         );
+
+        settings[0] = DOMofflineModeOption.textContent;
+        settings[1] = DOMdefaultOriginOption.value;
+        settings[2] = DOMgifAnimationsOption.textContent;
     });
 
     // Set default origin option
