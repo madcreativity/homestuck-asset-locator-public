@@ -329,13 +329,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let DOMupdateMetatagDataOptionBtn = document.querySelector("#getMetatagsOptionBtn");
     DOMupdateMetatagDataOptionBtn.addEventListener('click', () => {
         if(settings[0] == "Off") {
-            let discoveredMetatags;
-            let metatagOutput = "";
-            
             // Gather metatags from spreadsheet
             setState("Processing");
             googleObject.getFieldData(metatagSpreadsheet, "1:380").then((result) => {
-                discoveredMetatags = result;
+                let discoveredMetatags = result;
+                let metatagOutput = "";
                 
                 // Cast error if metatags failed to be collected correctly
                 if(discoveredMetatags === undefined) {
@@ -346,12 +344,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Attempt to process metatag data
                 try {
-                    // TODO: Process metatag data
-                    
+                    discoveredMetatags.data.values.forEach((tagRow) => {
+                        tagRow.forEach((singleTag) => {
+                            metatagOutput += singleTag.toString() + ",";
+                        });
+
+                        metatagOutput = metatagOutput.slice(0, metatagOutput.length - 1);
+                        metatagOutput += "|";
+                    });
+
+                    metatagOutput = metatagOutput.slice(0, metatagOutput.length - 1);
                 } catch(err) {
                     createAlert("Error", "Failed to process metatag data. Please try again. If this error persists, contact a developer.");
                     return;
                 }
+
+                // Save metatags to file
+                fs.writeFileSync(metatagsPath, metatagOutput);                    
 
                 setState("Idle");
             });
