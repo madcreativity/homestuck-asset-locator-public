@@ -5,13 +5,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const {google} = require('googleapis');
     const fs = require('fs');
     const fsPromises = fs.promises;
-
+    
     let win = remote.getGlobal('win');
     let loadingWin = remote.getGlobal('loadingWin');
-
+    
     // System variables
     let version = "beta v0.1";
     let settings = [];
+    
+    let spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
+    let metatagSpreadsheet = "1BfGuLpsdV4sV3N_Z3NVM2Vo-_OYT05m4SIvExdDd59g";
 
     // Loading message updater
     let updateLoadingMessage = (loadingMessage) => {
@@ -88,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function GoogleService() {
         this.service = null;
         this.client = null;
+        this.results = [];
 
         // Get client
         this.createClient = (credentialsPath, scopes) => {
@@ -134,63 +138,72 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Get data from field range
-        this.getFieldData = (spreadsheet, range) => { 
-            let request = this.service.spreadsheets.values.get({
-                spreadsheetId: spreadsheet,
-                range: range
-            });
-
-            request.then((response) => {
-                return response;
-            }, (reason) => {
-                console.error('error: ' + reason.result.error.message);
-                return null;
+        this.getFieldData = async (spreadsheet, range) => { 
+            return new Promise((resolve, reject) => {
+                this.service.spreadsheets.values.get({
+                    spreadsheetId: spreadsheet,
+                    range: range,
+                }, (err, result) => {
+                    if (err) {
+                        console.error(err);
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
             });
         }
 
         // Get data from multiple field ranges
-        this.getFieldDataMultiple = (spreadsheet, range) => { 
-            let request = this.service.spreadsheets.values.batchGet({
-                spreadsheetId: spreadsheet,
-                range: range
-            });
-
-            request.then((response) => {
-                return response;
-            }, (reason) => {
-                console.error('error: ' + reason.result.error.message);
-                return null;
+        this.getFieldDataMultiple = async (spreadsheet, range) => { 
+            return new Promise((resolve, reject) => {
+                this.service.spreadsheets.values.batchGet({
+                    spreadsheetId: spreadsheet,
+                    range: range,
+                }, (err, result) => {
+                    if (err) {
+                        console.error(err);
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
             });
         }
 
         // Write data to field range
-        this.writeFieldData = (spreadsheet, range, values) => {
-            let request = this.service.spreadsheets.values.update({
-                spreadsheetId: spreadsheet,
-                range: range
-            }, values);
-
-            request.then((response) => {
-                return response;
-            }, (reason) => {
-                console.error('error: ' + reason.result.error.message);
-                return null;
+        this.writeFieldData = async (spreadsheet, range, values) => {
+            return new Promise((resolve, reject) => {
+                this.service.spreadsheets.values.update({
+                    spreadsheetId: spreadsheet,
+                    range: range,
+                    data: values,
+                }, (err, result) => {
+                    if (err) {
+                        console.error(err);
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
             });
         }
 
         // Write data to multiple field ranges
-        this.writeFieldDataMultiple = (spreadsheet, range, values) => {
-            let request = this.service.spreadsheets.values.batchUpdate({
-                spreadsheetId: spreadsheet,
-                range: range,
-                data: values
-            });
-
-            request.then((response) => {
-                return response;
-            }, (reason) => {
-                console.error('error: ' + reason.result.error.message);
-                return null;
+        this.writeFieldDataMultiple = async (spreadsheet, range, values) => {
+            return new Promise((resolve, reject) => {
+                this.service.spreadsheets.values.batchUpdate({
+                    spreadsheetId: spreadsheet,
+                    range: range,
+                    data: values,
+                }, (err, result) => {
+                    if (err) {
+                        console.error(err);
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
             });
         }
     }
@@ -243,11 +256,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 DOMstate.style.color = "#4AC925";
                 break;
             
-            case "Uploading" | "Downloading" | "Offline":
+            case "Processing" | "Offline":
                 DOMstate.style.color = "#A1A100";
                 break;
             
-            case "Upload Failed" | "Download Failed" | "Error":
+            case "Error":
                 DOMstate.style.color = "#E00707";
                 break;
             
@@ -306,6 +319,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Options: Offline preparation
+    let DOMofflinePreparationOptionBtn = document.querySelector("#offlinePreparationOptionBtn");
+    DOMofflinePreparationOptionBtn.addEventListener('click', () => {
+        
+    });
+
+    // Options: Update metatag data
+    let DOMupdateMetatagDataOptionBtn = document.querySelector("#getMetatagsOptionBtn");
+    DOMupdateMetatagDataOptionBtn.addEventListener('click', () => {
+        if(settings[0] == "Off") {
+            let discoveredMetatags;
+            let metatagOutput = "";
+            
+            // Gather metatags from spreadsheet
+            setState("Processing");
+            googleObject.getFieldData(metatagSpreadsheet, "1:380").then((result) => {
+                discoveredMetatags = result;
+                
+                // Cast error if metatags failed to be collected correctly
+                if(discoveredMetatags === undefined) {
+                    createAlert("Error", "Failed to gather metatag data. Please try again. If this error persists, contact a developer.");
+                    setState("Error");
+                    return;
+                }
+                
+                // Attempt to process metatag data
+                try {
+                    // TODO: Process metatag data
+                    
+                } catch(err) {
+                    createAlert("Error", "Failed to process metatag data. Please try again. If this error persists, contact a developer.");
+                    return;
+                }
+
+                setState("Idle");
+            });
+
+            
+
+
+            fs.writeFileSync(metatagsPath, metatagOutput);
+        } else {
+            createAlert("Error", "Cannot connect to Google Service with offline mode enabled.");
+        }
+    });
+
     // Options: Reconnect to service
     let DOMreconnectServiceOptionBtn = document.querySelector("#reconnectServiceOptionBtn");
     DOMreconnectServiceOptionBtn.addEventListener('click', () => {
@@ -314,21 +373,22 @@ document.addEventListener('DOMContentLoaded', () => {
             
             try {
                 googleObject.createClient("volunteer.json", [
-                    'https://www.googleapis.com/auth/spreadsheets', 
-                    'https://www.googleapis.com/auth/spreadsheets.readonly'
+                    'https://www.googleapis.com/auth/spreadsheets'
                 ]);
                 googleObject.connectSheetsService();
             }
             catch(err) {
                 googleSheetsConnected = false;
                 console.error(err);
+                setState("Offline");
+
+                createAlert("Error", "Could not connect to Google Service.");
             }
     
             if(googleSheetsConnected) {
                 setState("Online");
             }
         } else {
-            setState("Offline");
 
             createAlert("Error", "Cannot connect to Google Service with offline mode enabled.");
         }
@@ -369,7 +429,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Google Sheets methods
     updateLoadingMessage('Connecting to Google Sheets');
 
-    let spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
 
     let googleObject = new GoogleService();
     
@@ -378,8 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             googleObject.createClient("volunteer.json", [
-                'https://www.googleapis.com/auth/spreadsheets', 
-                'https://www.googleapis.com/auth/spreadsheets.readonly'
+                'https://www.googleapis.com/auth/spreadsheets'
             ]);
             googleObject.connectSheetsService();
         }
