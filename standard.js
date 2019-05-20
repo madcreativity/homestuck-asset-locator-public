@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.client = null;
 
         // Get client
-        this.createClient = (credentialsPath) => {
+        this.createClient = (credentialsPath, scopes) => {
             // Load client mail and private key
             let rawData = fs.readFileSync(credentialsPath);
             let parsedData = JSON.parse(rawData);
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 clientMail,
                 null,
                 privateKey,
-                ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/spreadsheets.readonly'],
+                scopes,
                 null
             );
 
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             new Promise((resolve, reject) => {
                 client.authorize((err, tokens) => {
                     if (err) {
-                        reject(err);
+                        createAlert("Error", "Could not connect to Google Service.");
                     } else {
                         google.options({
                             auth: client
@@ -311,7 +311,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let googleSheetsConnected = true;
             
             try {
-                googleObject.createClient("volunteer.json");
+                googleObject.createClient("volunteer.json", [
+                    'https://www.googleapis.com/auth/spreadsheets', 
+                    'https://www.googleapis.com/auth/spreadsheets.readonly'
+                ]);
                 googleObject.connectSheetsService();
             }
             catch(err) {
@@ -325,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             setState("Offline");
 
-            createAlert("Error", "Could not connect to Google Sheets");
+            createAlert("Error", "Cannot connect to Google Service with offline mode enabled.");
         }
     });
 
@@ -372,7 +375,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let googleSheetsConnected = true;
         
         try {
-            googleObject.createClient("volunteer.json");
+            googleObject.createClient("volunteer.json", [
+                'https://www.googleapis.com/auth/spreadsheets', 
+                'https://www.googleapis.com/auth/spreadsheets.readonly'
+            ]);
             googleObject.connectSheetsService();
         }
         catch(err) {

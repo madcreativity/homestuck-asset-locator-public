@@ -215,6 +215,7 @@ main {
     text-align: center;
     display: flex;
     flex-direction: column;
+    max-width: 450px;
 }
 
 .alertContainer .alertTitle {
