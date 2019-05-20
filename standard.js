@@ -198,14 +198,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Folder structure
     updateLoadingMessage('Creating folder & file structure');
 
-    let assetPath = app.getPath('userData') + "\\assets";
+    let assetsPath = app.getPath('userData') + "\\assets";
+    let settingsPath = app.getPath('userData') + "\\settings.txt";
+    let metatagsPath = app.getPath('userData') + "\\metatag_cache.txt";
 
     // Asset directory
-    createDirectory(assetPath);
+    createDirectory(assetsPath);
     
     // Settings file
-    if(!fileExists(assetPath + "\\settings.txt")) {
-        fs.writeFileSync(assetPath + "\\settings.txt", 
+    if(!fileExists(settingsPath)) {
+        fs.writeFileSync(settingsPath, 
             "Off"+ ","
           + "Homestuck" + ","
           + "Auto"
@@ -213,12 +215,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Load settings
-    settings = fs.readFileSync(assetPath + "\\settings.txt").toString().split(',');
+    settings = fs.readFileSync(settingsPath).toString().split(',');
 
     
     // Metatag cache
-    if(!fileExists(assetPath + "\\metatags.txt")) {
-        fs.writeFileSync(assetPath + "\\metatags.txt", "");
+    if(!fileExists(metatagsPath)) {
+        fs.writeFileSync(metatagsPath, "");
     }
     
     
@@ -347,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     DOMsaveButton.addEventListener('click', () => {
         // Save option data to file
-        fs.writeFileSync(assetPath + "\\settings.txt", 
+        fs.writeFileSync(settingsPath, 
             DOMofflineModeOption.textContent + ","
           + DOMdefaultOriginOption.value + ","
           + DOMgifAnimationsOption.textContent
