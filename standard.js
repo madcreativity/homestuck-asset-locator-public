@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Options: Offline preparation
     let DOMofflinePreparationOptionBtn = document.querySelector("#offlinePreparationOptionBtn");
     DOMofflinePreparationOptionBtn.addEventListener('click', () => {
-        
+       // TODO: Download assets and correct data from spreadsheet 
     });
 
     // Options: Update metatag data
@@ -330,10 +330,11 @@ document.addEventListener('DOMContentLoaded', () => {
     DOMupdateMetatagDataOptionBtn.addEventListener('click', () => {
         if(settings[0] == "Off") {
             // Gather metatags from spreadsheet
+            let metatagOutput = "";
+            
             setState("Processing");
             googleObject.getFieldData(metatagSpreadsheet, "1:380").then((result) => {
                 let discoveredMetatags = result;
-                let metatagOutput = "";
                 
                 // Cast error if metatags failed to be collected correctly
                 if(discoveredMetatags === undefined) {
