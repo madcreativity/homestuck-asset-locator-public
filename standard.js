@@ -155,11 +155,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Get data from multiple field ranges
-        this.getFieldDataMultiple = async (spreadsheet, range) => { 
+        this.getFieldDataMultiple = async (spreadsheet, ranges) => { 
             return new Promise((resolve, reject) => {
                 this.service.spreadsheets.values.batchGet({
                     spreadsheetId: spreadsheet,
-                    range: range,
+                    ranges: ranges,
                 }, (err, result) => {
                     if (err) {
                         console.error(err);
@@ -247,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Set idle state
     let DOMstate = document.querySelector("#state");
-    
     let setState = (state) => {
         DOMstate.textContent = state;
         
@@ -263,13 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
             case "Error":
                 DOMstate.style.color = "#E00707";
                 break;
-            
-            default:
+                
+                default:
                 break;
+            }
         }
-    }
-
-
+        
+        
     updateLoadingMessage('Applying interaction logic');
 
     // Page transition buttons
@@ -300,6 +299,116 @@ document.addEventListener('DOMContentLoaded', () => {
             loadPage();
         });
     });
+
+    // Edit page elements
+    let DOMeditOrigin = document.querySelector("#edit-origin");
+    let DOMeditPageField = document.querySelector("#edit-pageField");
+    let DOMeditIdField = document.querySelector("#edit-idField");
+
+    // Edit page -- asset functionality
+    let curOrigin = "";
+    let curPage = 1;
+    let curID = 1;
+    let origins = [];
+    let assets = [];
+
+    function Origin(origin, originStart, originEnd) {
+        this.origin = origin;
+        this.originStart = originStart;
+        this.originEnd = originEnd;
+    }
+
+    let getOrigins = (callback) => {
+        let localOrigins = [];
+
+        googleObject.getFieldData(spreadsheet, "1:1").then((result) => {
+            localOrigins = result.data.values[0];
+
+            for(let i = 0; i < localOrigins.length - 1; i += 2) {
+                let originSplit = localOrigins[i + 1].split('-');
+                origins.push(new Origin(localOrigins[i], originSplit[0], originSplit[1]));
+            }
+
+            callback();
+        });
+    }
+
+    let loadAssetsFunc = () => {
+        // Load assets based on origin
+        let originSections = [];
+        
+        origins.forEach((origin) => {
+            originSections.push(origin.originStart + ":" + origin.originEnd);
+        });
+
+        googleObject.getFieldDataMultiple(spreadsheet, originSections).then((result) => {
+            assets = result.data.valueRanges;
+
+            // Show asset
+            showAsset();
+        });
+    }
+
+    let loadAssets = () => {
+        DOMeditPageField.value = "1";
+        DOMeditIdField.value = "1";
+
+        curOrigin = settings[1];
+        page = 1;
+        id = 1;
+
+        // Get origins
+        if(origins.length === 0) {
+            getOrigins(loadAssetsFunc);
+        } else {
+            loadAssetsFunc();
+        }
+    }
+
+    let showAsset = () => {
+        
+    }
+
+    // Edit page -- Key press
+    let keyMap = {};
+    window.addEventListener('keydown', (e) => {
+        e = e || window.event;
+
+        keyMap[e.keyCode] = e.type == 'keydown';
+
+        // Edit tags page
+        if(DOMeditPage.classList.contains("visible")) {
+            if(keyMap[17] && keyMap[39]) {
+                if(assets[curPage][0] > curPage) {
+                    curID++;
+                } else {
+                    curPage++;
+                }
+            } else if(keyMap[17] && keyMap[37]) {
+                if(curPage * 3 > 0) {
+                    curID--;
+                } else {
+                    curPage--;
+                    curID = assets[curPage][0];
+                }
+            }
+        }
+    });
+
+    window.addEventListener('keyup', (e) => {
+        e = e || window.event;
+
+        keyMap[e.keyCode] = e.type == 'keydown';
+    });
+
+    // Page loading function
+    let loadPage = () => {
+        if(DOMeditPage.classList.contains("visible")) {
+            DOMeditOrigin.value = settings[1];
+
+            loadAssets();
+        }
+    }
 
     // Switch option buttons
     let DOMswitchOptionButtons = document.querySelectorAll(".switch-btn");
@@ -404,10 +513,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Page loading function
-    let loadPage = () => {
-        
-    }
     
     // Options - Save changes button
     let DOMdefaultOriginOption = document.querySelector("#defaultOriginOption");
