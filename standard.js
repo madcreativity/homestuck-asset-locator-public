@@ -376,6 +376,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let showAssetFlash = (url) => {
+        let thisObjectElement = document.createElement("object");
+        let thisParamMovieElement = document.createElement("param");
+        let thisParamWmodeElement = document.createElement("param");
+        let thisEmbedElement = document.createElement("embed");
+
+        thisParamMovieElement.name = "movie";
+        thisParamMovieElement.value = url;
+
+        thisParamWmodeElement.name = "wmode";
+        thisParamWmodeElement.value = "transparent";
+
+        thisEmbedElement.src = url;
+
+        
+        thisObjectElement.appendChild(thisParamMovieElement);
+        thisObjectElement.appendChild(thisParamWmodeElement);
+        thisObjectElement.appendChild(thisEmbedElement);
+
+        DOMeditContentContainer.appendChild(thisObjectElement);
+    }
+
+    let showAssetPanel = (url) => {
+        let thisImageElement = document.createElement("img");
+        thisImageElement.src = url;
+
+        DOMeditContentContainer.appendChild(thisImageElement);
+    }
+
     let showAsset = () => {
         let thisPageTypeDat = assets[curPage - 1][2 + (curID - 1) * 3];
         let thisPageLinkDat = assets[curPage - 1][3 + (curID - 1) * 3];
@@ -388,18 +417,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
                     }
 
-                    let thisImageElement = document.createElement("img");
-                    thisImageElement.src = thisPageLinkDat;
-
-                    DOMeditContentContainer.appendChild(thisImageElement);
+                    showAssetPanel(thisPageLinkDat);
                 } else {
                     DOMeditContentContainer.children[0].src = thisPageLinkDat;
                 }
             } else {
-                let thisImageElement = document.createElement("img");
-                thisImageElement.src = thisPageLinkDat;
-
-                DOMeditContentContainer.appendChild(thisImageElement);
+                showAssetPanel(thisPageLinkDat);
             }
         } else if(thisPageTypeDat === "Flash") {
             if(DOMeditContentContainer.children[0] !== undefined) {
@@ -408,50 +431,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
                     }
 
-                    let thisObjectElement = document.createElement("object");
-                    let thisParamMovieElement = document.createElement("param");
-                    let thisParamWmodeElement = document.createElement("param");
-                    let thisEmbedElement = document.createElement("embed");
-
-                    thisParamMovieElement.name = "movie";
-                    thisParamMovieElement.value = thisPageLinkDat;
-
-                    thisParamWmodeElement.name = "wmode";
-                    thisParamWmodeElement.value = "transparent";
-
-                    thisEmbedElement.src = thisPageLinkDat;
-
-                    
-                    thisObjectElement.appendChild(thisParamMovieElement);
-                    thisObjectElement.appendChild(thisParamWmodeElement);
-                    thisObjectElement.appendChild(thisEmbedElement);
-
-                    DOMeditContentContainer.appendChild(thisObjectElement);
+                    showAssetFlash(thisPageLinkDat);
                 } else {
                     DOMeditContentContainer.querySelector("param[name=movie]").value = thisPageLinkDat;
 
                     DOMeditContentContainer.querySelector("embed").src = thisPageLinkDat;
                 }
             } else {
-                let thisObjectElement = document.createElement("object");
-                let thisParamMovieElement = document.createElement("param");
-                let thisParamWmodeElement = document.createElement("param");
-                let thisEmbedElement = document.createElement("embed");
-
-                thisParamMovieElement.name = "movie";
-                thisParamMovieElement.value = thisPageLinkDat;
-
-                thisParamWmodeElement.name = "wmode";
-                thisParamWmodeElement.value = "transparent";
-
-                thisEmbedElement.src = thisPageLinkDat;
-
-                
-                thisObjectElement.appendChild(thisParamMovieElement);
-                thisObjectElement.appendChild(thisParamWmodeElement);
-                thisObjectElement.appendChild(thisEmbedElement);
-
-                DOMeditContentContainer.appendChild(thisObjectElement);
+                showAssetFlash(thisPageLinkDat);
             }
         }
 
