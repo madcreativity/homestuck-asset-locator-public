@@ -301,6 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Edit page elements
+    let DOMeditContentContainer = document.querySelector("#editContentContainer");
+
     let DOMeditOrigin = document.querySelector("#edit-origin");
     let DOMeditPageField = document.querySelector("#edit-pageField");
     let DOMeditIdField = document.querySelector("#edit-idField");
@@ -378,6 +380,80 @@ document.addEventListener('DOMContentLoaded', () => {
         let thisPageTypeDat = assets[curPage - 1][2 + (curID - 1) * 3];
         let thisPageLinkDat = assets[curPage - 1][3 + (curID - 1) * 3];
         let thisPageTagsDat = assets[curPage - 1][4 + (curID - 1) * 3];
+
+        if(thisPageTypeDat === "Panel") {
+            if(DOMeditContentContainer.children[0] !== undefined) {
+                if(DOMeditContentContainer.children[0].tagName !== "IMG") {
+                    while(DOMeditContentContainer.firstChild) {
+                        DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
+                    }
+
+                    let thisImageElement = document.createElement("img");
+                    thisImageElement.src = thisPageLinkDat;
+
+                    DOMeditContentContainer.appendChild(thisImageElement);
+                } else {
+                    DOMeditContentContainer.children[0].src = thisPageLinkDat;
+                }
+            } else {
+                let thisImageElement = document.createElement("img");
+                thisImageElement.src = thisPageLinkDat;
+
+                DOMeditContentContainer.appendChild(thisImageElement);
+            }
+        } else if(thisPageTypeDat === "Flash") {
+            if(DOMeditContentContainer.children[0] !== undefined) {
+                if(DOMeditContentContainer.children[0].tagName !== "OBJECT") {
+                    while(DOMeditContentContainer.firstChild) {
+                        DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
+                    }
+
+                    let thisObjectElement = document.createElement("object");
+                    let thisParamMovieElement = document.createElement("param");
+                    let thisParamWmodeElement = document.createElement("param");
+                    let thisEmbedElement = document.createElement("embed");
+
+                    thisParamMovieElement.name = "movie";
+                    thisParamMovieElement.value = thisPageLinkDat;
+
+                    thisParamWmodeElement.name = "wmode";
+                    thisParamWmodeElement.value = "transparent";
+
+                    thisEmbedElement.src = thisPageLinkDat;
+
+                    
+                    thisObjectElement.appendChild(thisParamMovieElement);
+                    thisObjectElement.appendChild(thisParamWmodeElement);
+                    thisObjectElement.appendChild(thisEmbedElement);
+
+                    DOMeditContentContainer.appendChild(thisObjectElement);
+                } else {
+                    DOMeditContentContainer.querySelector("param[name=movie]").value = thisPageLinkDat;
+
+                    DOMeditContentContainer.querySelector("embed").src = thisPageLinkDat;
+                }
+            } else {
+                let thisObjectElement = document.createElement("object");
+                let thisParamMovieElement = document.createElement("param");
+                let thisParamWmodeElement = document.createElement("param");
+                let thisEmbedElement = document.createElement("embed");
+
+                thisParamMovieElement.name = "movie";
+                thisParamMovieElement.value = thisPageLinkDat;
+
+                thisParamWmodeElement.name = "wmode";
+                thisParamWmodeElement.value = "transparent";
+
+                thisEmbedElement.src = thisPageLinkDat;
+
+                
+                thisObjectElement.appendChild(thisParamMovieElement);
+                thisObjectElement.appendChild(thisParamWmodeElement);
+                thisObjectElement.appendChild(thisEmbedElement);
+
+                DOMeditContentContainer.appendChild(thisObjectElement);
+            }
+        }
 
         DOMeditTagsField.value = thisPageTagsDat;
     }

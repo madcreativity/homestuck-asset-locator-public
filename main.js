@@ -1,9 +1,18 @@
 const { ipcMain, app, BrowserWindow } = require('electron');
+const path = require('path');
 
 let loadingWin;
 let win;
 
 let loadingComplete = false;
+
+if(process.platform == 'win32') {
+    if(process.arch == 'x64') {
+        app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname, 'flash-plugin/pepflashplayerx64.dll'));
+    } else {
+        app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname, 'flash-plugin/pepflashplayerx86.dll'));
+    }
+}
 
 var createLoadingWindow = () => {
     // Create loading window
@@ -11,7 +20,8 @@ var createLoadingWindow = () => {
         width: 700,
         height: 525,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            plugins: true
         },
         autoHideMenuBar: true,
         icon: __dirname + '/assets/icon.ico',
@@ -43,7 +53,8 @@ var createMainWindow = () => {
         width: 1280,
         height: 720,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            plugins: true
         },
         autoHideMenuBar: true,
         icon: __dirname + '/assets/icon.ico',
