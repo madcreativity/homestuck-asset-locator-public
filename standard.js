@@ -305,6 +305,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let DOMeditPageField = document.querySelector("#edit-pageField");
     let DOMeditIdField = document.querySelector("#edit-idField");
 
+    let DOMeditTagsField = document.querySelector("#tagField");
+
     // Edit page -- asset functionality
     let curOrigin = "";
     let curPage = 1;
@@ -320,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let getOrigins = (callback) => {
         let localOrigins = [];
+        origins = [];
 
         googleObject.getFieldData(spreadsheet, "1:1").then((result) => {
             localOrigins = result.data.values[0];
@@ -337,12 +340,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Load assets based on origin
         let originSections = [];
         
+        assets = [];
+        
         origins.forEach((origin) => {
             originSections.push(origin.originStart + ":" + origin.originEnd);
         });
 
         googleObject.getFieldDataMultiple(spreadsheet, originSections).then((result) => {
-            assets = result.data.valueRanges;
+            result.data.valueRanges.forEach((valueRange) => {
+                valueRange.values.forEach((value) => {
+                    assets.push(value);
+                });
+            });
 
             // Show asset
             showAsset();
@@ -366,8 +375,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let showAsset = () => {
-        
+        let thisPageTypeDat = assets[curPage - 1][2 + (curID - 1) * 3];
+        let thisPageLinkDat = assets[curPage - 1][3 + (curID - 1) * 3];
+        let thisPageTagsDat = assets[curPage - 1][4 + (curID - 1) * 3];
+
+        DOMeditTagsField.value = thisPageTagsDat;
     }
+
+    // Edit page -- Select button
+    let DOMeditSelectBtn = document.querySelector("#edit-selectBtn");
+    DOMeditSelectBtn.addEventListener('click', () => {
+        setState("Processing");
+
+        curPage = parseInt(DOMeditPageField.value);
+        curID = parseInt(DOMeditIdField.value);
+
+        if(DOMeditOrigin.value !== curOrigin) {
+            curOrigin = DOMeditOrigin.value;
+        }
+
+        showAsset();
+
+        setState("Idle");
+    });
 
     // Edit page -- Key press
     let keyMap = {};
@@ -379,21 +409,72 @@ document.addEventListener('DOMContentLoaded', () => {
         // Edit tags page
         if(DOMeditPage.classList.contains("visible")) {
             if(keyMap[17] && keyMap[39]) {
-                if(assets[curPage][0] > curPage) {
+                if(assets[curPage - 1][0] > curID) {
                     curID++;
                 } else {
                     curPage++;
+                    curID = 1;
                 }
+        
+                DOMeditPageField.value = curPage.toString();
+                DOMeditIdField.value = curID.toString();
+
+                showAsset();
             } else if(keyMap[17] && keyMap[37]) {
-                if(curPage * 3 > 0) {
+                if(curID - 1 > 0) {
                     curID--;
-                } else {
+                } else if(curPage - 1 > 0) {
                     curPage--;
-                    curID = assets[curPage][0];
+                    curID = assets[curPage - 1][0];
                 }
+
+                DOMeditPageField.value = curPage.toString();
+                DOMeditIdField.value = curID.toString();
+
+                showAsset();
             }
         }
     });
+
+    let DOMeditPageBack = document.querySelector("#page-edit-back");
+    let DOMeditPageForward = document.querySelector("#page-edit-forward");
+
+    DOMeditPageBack.addEventListener('click', () => {
+        setState("Processing");
+
+        if(curID - 1 > 0) {
+            curID--;
+        } else if(curPage - 1 > 0) {
+            curPage--;
+            curID = assets[curPage - 1][0];
+        }
+
+        DOMeditPageField.value = curPage.toString();
+        DOMeditIdField.value = curID.toString();
+
+        showAsset();
+
+        setState("Idle");
+    });
+
+    DOMeditPageForward.addEventListener('click', () => {
+        setState("Processing");
+
+        if(assets[curPage - 1][0] > curID) {
+            curID++;
+        } else {
+            curPage++;
+            curID = 1;
+        }
+
+        DOMeditPageField.value = curPage.toString();
+        DOMeditIdField.value = curID.toString();
+
+        showAsset();
+
+        setState("Idle");
+    });
+
 
     window.addEventListener('keyup', (e) => {
         e = e || window.event;
@@ -404,9 +485,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Page loading function
     let loadPage = () => {
         if(DOMeditPage.classList.contains("visible")) {
+            setState("Processing");
+
             DOMeditOrigin.value = settings[1];
 
             loadAssets();
+
+            setState("Idle");
         }
     }
 
