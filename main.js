@@ -12,6 +12,8 @@ if(process.platform == 'win32') {
     } else {
         app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname, 'flash-plugin/pepflashplayerx86.dll'));
     }
+} else if(process.platform == 'linux') {
+    // TODO: Add flash player plugin for other platforms
 }
 
 var createLoadingWindow = () => {

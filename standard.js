@@ -177,7 +177,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.service.spreadsheets.values.update({
                     spreadsheetId: spreadsheet,
                     range: range,
-                    data: values,
+                    valueInputOption: "RAW",
+                    resource: {
+                        values: [ values ]
+                    }
                 }, (err, result) => {
                     if (err) {
                         console.error(err);
@@ -190,12 +193,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Write data to multiple field ranges
-        this.writeFieldDataMultiple = async (spreadsheet, range, values) => {
+        this.writeFieldDataMultiple = async (spreadsheet, ranges, values) => {
             return new Promise((resolve, reject) => {
                 this.service.spreadsheets.values.batchUpdate({
                     spreadsheetId: spreadsheet,
-                    range: range,
-                    data: values,
+                    ranges: ranges,
+                    valueInputOption: "RAW",
+                    resource: {
+                        values: [ values ]
+                    }
                 }, (err, result) => {
                     if (err) {
                         console.error(err);
@@ -444,6 +450,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
         DOMeditTagsField.value = thisPageTagsDat;
     }
+
+    const ALPHABET =  ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "Y", "Z"];
+
+    let indexToColumn = (index) => {
+        let column = "";
+
+        let timesRun = 0;
+        while (timesRun < Math.floor(index / ALPHABET.length))
+        {
+            column += ALPHABET[timesRun];
+            timesRun++;
+        }
+
+        if(index - (timesRun * ALPHABET.length) > 0)
+        {
+            column += ALPHABET[index - (timesRun * ALPHABET.length)];
+        }
+
+        return column;
+    }
+
+    // Edit page -- Apply edits button
+    let DOMeditApplyTagEditsBtn = document.querySelector("#applyEditsTagBtn");
+
+    DOMeditApplyTagEditsBtn.addEventListener('click', () => {
+        // TODO: Update tag data on server
+        let thisOrigins = curOrigin.replace(" ", "").toLowerCase().split(",");
+        let thisIndexOffset = 0;
+
+        for(let i = 0; i < origins.length; i++) {
+            if(thisOrigins.includes(origins[i].origin.toLowerCase())) {
+                if(curPage >= thisIndexOffset && curPage <= thisIndexOffset + origins[i].originEnd) {
+                    let thisSheetField = indexToColumn(4 + (curID - 1) * 3) + (parseInt(origins[i].originStart) + (curPage - 1) - thisIndexOffset).toString();
+
+                    googleObject.writeFieldData(spreadsheet, thisSheetField + ":" + thisSheetField, [DOMeditTagsField.value]).then((result) => {
+                        console.log(thisSheetField + ": " + DOMeditTagsField.value);
+                    });
+
+                    break;
+                }
+
+                thisIndexOffset += origins[i].originEnd - origins[i].originStart;
+            }
+        }
+    });
+
 
     // Edit page -- Select button
     let DOMeditSelectBtn = document.querySelector("#edit-selectBtn");
