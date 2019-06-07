@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let loadingWin = remote.getGlobal('loadingWin');
     
     // System variables
-    let version = "beta v0.1";
+    let version = "beta v0.5";
     let settings = [];
     
     let spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
@@ -691,7 +691,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let googleSheetsConnected = true;
             
             try {
-                googleObject.createClient("volunteer.json", [
+                googleObject.createClient(__dirname + "\\volunteer.json", [
                     'https://www.googleapis.com/auth/spreadsheets'
                 ]);
                 googleObject.connectSheetsService();
@@ -751,7 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let googleSheetsConnected = true;
         
         try {
-            googleObject.createClient("volunteer.json", [
+            googleObject.createClient(__dirname + "\\volunteer.json", [
                 'https://www.googleapis.com/auth/spreadsheets'
             ]);
             googleObject.connectSheetsService();
