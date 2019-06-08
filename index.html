@@ -21,7 +21,7 @@
                     <img id="logo" src="./assets/hal-logo.png">
 
                     <div id="main-btn-container">
-                        <!--<button class="goto-search-btn goto-btn std-btn">Search Using Tags</button>-->
+                        <button class="goto-search-btn goto-btn std-btn">Search Using Tags</button>
                         <button class="goto-edit-btn goto-btn std-btn">Edit Tags</button>
                         <button class="goto-options-btn goto-btn std-btn">Options</button>
                     </div>
@@ -36,7 +36,7 @@
                     </div>
                     <div id="lowerSegment">
                         <div id="contentControl">
-                            <input type="text" class="std-text --small" placeholder="adventure/origin">
+                            <input type="text" class="std-text --small" placeholder="adventure/origin" id="search-origin">
     
                             <div id="pageControl">
                                 <button id="pageBack" class="std-btn --small">&lt;</button>
@@ -52,12 +52,12 @@
     
                         <div id="showContainer">
                             <div>
-                                <input id="showPanels" type="checkbox" class="std-checkbox">
+                                <input id="showPanels" type="checkbox" class="std-checkbox" checked>
                                 <label for="showPanels">Show Panels</label>
                             </div>
     
                             <div>
-                                <input id="showFlashes" type="checkbox" class="std-checkbox">
+                                <input id="showFlashes" type="checkbox" class="std-checkbox" checked>
                                 <label for="showFlashes">Show Flashes</label>
                             </div>
                         </div>
@@ -94,6 +94,7 @@
                         </div>
     
                         <div id="lowerSegmentControlsBottom">
+                            <button id="editOpenInBrowser">Open In Browser</button>
                             <textarea class="std-textarea --small" id="tagField" placeholder="ex. John, Act 6, Poster, Intermission"></textarea>
                             <button class="std-btn --small std-btn-center" id="applyEditsTagBtn">Apply Edits</button>
                         </div>
@@ -115,8 +116,7 @@
     
                         <div class="optionContainer">
                             <label class="std-label">GIF animations:</label>
-                            <!--<button id="gifAnimationsOption" class="switch-btn std-btn" data-options="Auto,On click,On hover">Auto</button>-->
-                            <button id="gifAnimationsOption" class="std-btn">Auto</button>
+                            <button id="gifAnimationsOption" class="switch-btn std-btn" data-options="Auto,On click,On hover">Auto</button>
                         </div>
 
                         <div class="optionContainer">
