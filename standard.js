@@ -431,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showAssetPanel(thisPageLinkDat);
             }
         } else if(thisPageTypeDat === "Flash") {
-            if(DOMeditContentContainer.children[0] !== undefined) {
+            /*if(DOMeditContentContainer.children[0] !== undefined) {
                 if(DOMeditContentContainer.children[0].tagName !== "OBJECT") {
                     while(DOMeditContentContainer.firstChild) {
                         DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
@@ -445,6 +445,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 showAssetFlash(thisPageLinkDat);
+            }*/
+            if(DOMeditContentContainer.children[0] !== undefined) {
+                if(DOMeditContentContainer.children[0].tagName !== "IMG") {
+                    while(DOMeditContentContainer.firstChild) {
+                        DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
+                    }
+
+                    showAssetPanel("assets/comingSoon.png");
+                } else {
+                    DOMeditContentContainer.children[0].src = "assets/comingSoon.png";
+                }
+            } else {
+                showAssetPanel("assets/comingSoon.png");
             }
         }
 
@@ -740,10 +753,8 @@ document.addEventListener('DOMContentLoaded', () => {
     DOMdefaultOriginOption.value = settings[1];
     DOMgifAnimationsOption.textContent = settings[2];
     
-    
     // Google Sheets methods
     updateLoadingMessage('Connecting to Google Sheets');
-
 
     let googleObject = new GoogleService();
     
