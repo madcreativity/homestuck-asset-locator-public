@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let loadingWin = remote.getGlobal('loadingWin');
     
     // System variables
-    let version = "beta v0.1";
+    let version = "beta v0.5";
     let settings = [];
     
     let spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showAssetPanel(thisPageLinkDat);
             }
         } else if(thisPageTypeDat === "Flash") {
-            if(DOMeditContentContainer.children[0] !== undefined) {
+            /*if(DOMeditContentContainer.children[0] !== undefined) {
                 if(DOMeditContentContainer.children[0].tagName !== "OBJECT") {
                     while(DOMeditContentContainer.firstChild) {
                         DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
@@ -461,6 +461,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 showAssetFlash(thisPageLinkDat);
+            }*/
+            if(DOMeditContentContainer.children[0] !== undefined) {
+                if(DOMeditContentContainer.children[0].tagName !== "IMG") {
+                    while(DOMeditContentContainer.firstChild) {
+                        DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
+                    }
+
+                    showAssetPanel("assets/comingSoon.png");
+                } else {
+                    DOMeditContentContainer.children[0].src = "assets/comingSoon.png";
+                }
+            } else {
+                showAssetPanel("assets/comingSoon.png");
             }
         }
 
@@ -708,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
             googleSheetsConnected = true;
             
             try {
-                googleObject.createClient("volunteer.json", [
+                googleObject.createClient(__dirname + "\\volunteer.json", [
                     'https://www.googleapis.com/auth/spreadsheets'
                 ]);
                 googleObject.connectSheetsService();
@@ -757,10 +770,8 @@ document.addEventListener('DOMContentLoaded', () => {
     DOMdefaultOriginOption.value = settings[1];
     DOMgifAnimationsOption.textContent = settings[2];
     
-    
     // Google Sheets methods
     updateLoadingMessage('Connecting to Google Sheets');
-
 
     let googleObject = new GoogleService();
     
@@ -768,7 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
         googleSheetsConnected = true;
         
         try {
-            googleObject.createClient("volunteer.json", [
+            googleObject.createClient(__dirname + "\\volunteer.json", [
                 'https://www.googleapis.com/auth/spreadsheets'
             ]);
             googleObject.connectSheetsService();

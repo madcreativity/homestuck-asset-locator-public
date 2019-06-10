@@ -235,3 +235,20 @@ main {
 .alertContainer .alertInner button {
     margin: 5px;
 }
+
+/* Edit Tags */
+#editContentContainer > img {
+    width: 100%;
+}
+
+#applyEditsTagBtn {
+    padding: 4px 12px;
+    line-height: 25px;
+    height: 25px;
+    box-sizing: content-box;
+}
+
+/* Temporary code to hide unfinished elements */
+#offlinePreparationOptionBtn {
+    display: none;
+}
