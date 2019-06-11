@@ -59,15 +59,21 @@
     background: none;
     border: none;
     position: absolute;
-    top: 5px;
+    top: 10px;
     right: 5px;
-    height: calc(100% - 10px);
+    height: calc(100% - 20px);
+    transform-origin: center;
+    transition: transform 100ms 10ms linear;
 }
 
 #page-search #searchIcon img {
     height: 100%;
 }
 
+#page-search #searchIcon:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+}
 
 /* Edit */
 #page-edit #lowerSegment {
@@ -133,6 +139,27 @@
 
 #page-edit #contentContainer img {
     max-width: 100%;
+}
+
+#page-edit #editContentContainer > img {
+    width: 100%;
+}
+
+#page-edit #applyEditsTagBtn {
+    padding: 4px 12px;
+    line-height: 25px;
+    height: 25px;
+    box-sizing: content-box;
+}
+
+#page-edit #editOpenInBrowser {
+    margin: 0 auto 5px auto;
+    border: 0;
+    background: transparent;
+    color: #0000EE;
+    font-size: 13px;
+    text-decoration: underline;
+    display: block;
 }
 
 /* Options */

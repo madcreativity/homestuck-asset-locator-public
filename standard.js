@@ -10,7 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let loadingWin = remote.getGlobal('loadingWin');
     
     // System variables
-    let version = "beta v0.5";
+    const ALPHABET =  ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "Y", "Z"];
+
+    const version = "beta v0.6";
     let settings = [];
     
     let spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
@@ -333,6 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let curOrigin = "";
     let curPage = 1;
     let curID = 1;
+    let currentResultsPage = 1;
     let origins = [];
     let assets = [];
 
@@ -398,6 +401,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let loadAssetsSearch = () => {
+        curOrigin = settings[1];
+        currentResultsPage = 1;
+
+        // Get origins
+        if(origins.length === 0) {
+            getOrigins(loadAssetsFunc);
+        } else {
+            loadAssetsFunc();
+        }
+    }
+
     let showAssetFlash = (url) => {
         let thisObjectElement = document.createElement("object");
         let thisParamMovieElement = document.createElement("param");
@@ -428,6 +443,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let showAsset = () => {
+        setState("Processing");
+
+
         let thisPageTypeDat = assets[curPage - 1][2 + (curID - 1) * 3];
         let thisPageLinkDat = assets[curPage - 1][3 + (curID - 1) * 3];
         let thisPageTagsDat = assets[curPage - 1][4 + (curID - 1) * 3];
@@ -447,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showAssetPanel(thisPageLinkDat);
             }
         } else if(thisPageTypeDat === "Flash") {
-            /*if(DOMeditContentContainer.children[0] !== undefined) {
+            if(DOMeditContentContainer.children[0] !== undefined) {
                 if(DOMeditContentContainer.children[0].tagName !== "OBJECT") {
                     while(DOMeditContentContainer.firstChild) {
                         DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
@@ -461,26 +479,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 showAssetFlash(thisPageLinkDat);
-            }*/
-            if(DOMeditContentContainer.children[0] !== undefined) {
-                if(DOMeditContentContainer.children[0].tagName !== "IMG") {
-                    while(DOMeditContentContainer.firstChild) {
-                        DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
-                    }
-
-                    showAssetPanel("assets/comingSoon.png");
-                } else {
-                    DOMeditContentContainer.children[0].src = "assets/comingSoon.png";
-                }
-            } else {
-                showAssetPanel("assets/comingSoon.png");
             }
         }
 
         DOMeditTagsField.value = thisPageTagsDat;
-    }
 
-    const ALPHABET =  ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "Y", "Z"];
+
+        setState("Idle");
+    }
 
     let indexToColumn = (index) => {
         let column = "";
@@ -517,9 +523,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             console.log(thisSheetField + ": " + DOMeditTagsField.value);
                         });
 
+
+                        assets[curPage - 1][4 + (curID - 1) * 3] = DOMeditTagsField.value;
+
                         break;
                     }
-
                     thisIndexOffset += origins[i].originEnd - origins[i].originStart;
                 }
             }
@@ -579,6 +587,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 DOMeditIdField.value = curID.toString();
 
                 showAsset();
+            } else if(keyMap[13]) {
+                if(document.activeElement !== DOMeditTagsField) {
+                    curOrigin = DOMeditOrigin.value;
+                    curPage = parseInt(DOMeditPageField.value);
+                    curId = parseInt(DOMeditIdField.value);
+
+                    showAsset();
+                }
             }
         }
     });
@@ -629,6 +645,9 @@ document.addEventListener('DOMContentLoaded', () => {
         keyMap[e.keyCode] = e.type == 'keydown';
     });
 
+    // Search page elements
+    let DOMsearchOrigin = document.querySelector("#search-origin");
+
     // Page loading function
     let loadPage = () => {
         if(DOMeditPage.classList.contains("visible")) {
@@ -636,7 +655,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             DOMeditOrigin.value = settings[1];
 
-            loadAssets();
+            if(assets.length <= 0) {
+                loadAssets();
+            }
+
+            setState("Idle");
+        } else if(DOMsearchPage.classList.contains("visible")) {
+            setState("Processing");
+
+            DOMsearchOrigin.value = settings[1];
+
+            if(assets.length <= 0) {
+                loadAssetsSearch();
+            }
+
+            setState("Idle");
         }
     }
 
