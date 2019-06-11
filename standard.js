@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
     let metatagSpreadsheet = "1BfGuLpsdV4sV3N_Z3NVM2Vo-_OYT05m4SIvExdDd59g";
+    
+    let googleSheetsConnected = false;
 
     // Loading message updater
     let updateLoadingMessage = (loadingMessage) => {
@@ -273,8 +275,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 default:
                 break;
-            }
         }
+    }
+
+    let getState = () => {
+        return DOMstate.textContent;
+    }
         
         
     updateLoadingMessage('Applying interaction logic');
@@ -296,7 +302,15 @@ document.addEventListener('DOMContentLoaded', () => {
             let element = null;
 
             if(e.target.classList.contains("goto-search-btn")) element = DOMsearchPage;
-            else if(e.target.classList.contains("goto-edit-btn")) element = DOMeditPage;
+            else if(e.target.classList.contains("goto-edit-btn")) {
+                if(settings[0] === "Off" && googleSheetsConnected) {
+                    element = DOMeditPage;
+                } else {
+                    createAlert("Error", "You cannot edit tags while offline.");
+                    DOMindexPage.classList.add("visible");
+                    return;
+                }
+            }
             else if(e.target.classList.contains("goto-options-btn")) element = DOMoptionsPage;
             else if(e.target.classList.contains("goto-index-btn")) element = DOMindexPage;
 
@@ -366,6 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Show asset
             showAsset();
+
+            setState("Idle");
         });
     }
 
@@ -494,26 +510,26 @@ document.addEventListener('DOMContentLoaded', () => {
     let DOMeditApplyTagEditsBtn = document.querySelector("#applyEditsTagBtn");
 
     DOMeditApplyTagEditsBtn.addEventListener('click', () => {
-        // TODO: Update tag data on server
-        let thisOrigins = curOrigin.replace(" ", "").toLowerCase().split(",");
-        let thisIndexOffset = 0;
+        if(getState() !== "Processing") {
+            let thisOrigins = curOrigin.replace(" ", "").toLowerCase().split(",");
+            let thisIndexOffset = 0;
 
-        for(let i = 0; i < origins.length; i++) {
-            if(thisOrigins.includes(origins[i].origin.toLowerCase())) {
-                if(curPage >= thisIndexOffset && curPage <= thisIndexOffset + origins[i].originEnd) {
-                    let thisSheetField = indexToColumn(4 + (curID - 1) * 3) + (parseInt(origins[i].originStart) + (curPage - 1) - thisIndexOffset).toString();
+            for(let i = 0; i < origins.length; i++) {
+                if(thisOrigins.includes(origins[i].origin.toLowerCase())) {
+                    if(curPage >= thisIndexOffset && curPage <= thisIndexOffset + origins[i].originEnd) {
+                        let thisSheetField = indexToColumn(4 + (curID - 1) * 3) + (parseInt(origins[i].originStart) + (curPage - 1) - thisIndexOffset).toString();
 
-                    googleObject.writeFieldData(spreadsheet, thisSheetField + ":" + thisSheetField, [DOMeditTagsField.value]).then((result) => {
-                        console.log(thisSheetField + ": " + DOMeditTagsField.value);
-                    });
-
-                    assets[curPage - 1][4 + (curID - 1) * 3] = DOMeditTagsField.value;
+                        googleObject.writeFieldData(spreadsheet, thisSheetField + ":" + thisSheetField, [DOMeditTagsField.value]).then((result) => {
+                            console.log(thisSheetField + ": " + DOMeditTagsField.value);
+                        });
 
 
-                    break;
+                        assets[curPage - 1][4 + (curID - 1) * 3] = DOMeditTagsField.value;
+
+                        break;
+                    }
+                    thisIndexOffset += origins[i].originEnd - origins[i].originStart;
                 }
-
-                thisIndexOffset += origins[i].originEnd - origins[i].originStart;
             }
         }
     });
@@ -522,18 +538,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Edit page -- Select button
     let DOMeditSelectBtn = document.querySelector("#edit-selectBtn");
     DOMeditSelectBtn.addEventListener('click', () => {
-        setState("Processing");
+        if(getState() !== "Processing") {
+            setState("Processing");
 
-        curPage = parseInt(DOMeditPageField.value);
-        curID = parseInt(DOMeditIdField.value);
+            curPage = parseInt(DOMeditPageField.value);
+            curID = parseInt(DOMeditIdField.value);
 
-        if(DOMeditOrigin.value !== curOrigin) {
-            curOrigin = DOMeditOrigin.value;
+            if(DOMeditOrigin.value !== curOrigin) {
+                curOrigin = DOMeditOrigin.value;
+            }
+
+            showAsset();
+
+            setState("Idle");
         }
-
-        showAsset();
-
-        setState("Idle");
     });
 
     // Edit page -- Key press
@@ -733,7 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let DOMreconnectServiceOptionBtn = document.querySelector("#reconnectServiceOptionBtn");
     DOMreconnectServiceOptionBtn.addEventListener('click', () => {
         if(settings[0] == "Off") {
-            let googleSheetsConnected = true;
+            googleSheetsConnected = true;
             
             try {
                 googleObject.createClient(__dirname + "\\volunteer.json", [
@@ -791,7 +809,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let googleObject = new GoogleService();
     
     if(settings[0] == "Off") {
-        let googleSheetsConnected = true;
+        googleSheetsConnected = true;
         
         try {
             googleObject.createClient(__dirname + "\\volunteer.json", [
