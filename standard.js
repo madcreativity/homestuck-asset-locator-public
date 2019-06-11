@@ -334,8 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Edit page -- asset functionality
     let curOrigin = "";
     let curPage = 1;
-    let curID = 1;
-    let currentResultsPage = 1;
+    let curID = 1
     let origins = [];
     let assets = [];
 
@@ -554,12 +553,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Edit page -- Key press
+    // Key press
     let keyMap = {};
     window.addEventListener('keydown', (e) => {
         e = e || window.event;
 
         keyMap[e.keyCode] = e.type == 'keydown';
+
+        // Search page
+        if(DOMsearchPage.classList.contains("visible")) {
+            if(keyMap[13]) {
+                DOMsearchIcon.click();
+            }
+        }
 
         // Edit tags page
         if(DOMeditPage.classList.contains("visible")) {
@@ -645,8 +651,52 @@ document.addEventListener('DOMContentLoaded', () => {
         keyMap[e.keyCode] = e.type == 'keydown';
     });
 
+    // Search page variables
+    let currentResultsPage = 1;
+    let searchSelectedAssets = [];
+
     // Search page elements
     let DOMsearchOrigin = document.querySelector("#search-origin");
+    let DOMsearchTags = document.querySelector("#tagControl");
+
+    let DOMsearchIcon = document.querySelector("#searchIcon");
+
+    // Search -- Search button
+    DOMsearchIcon.addEventListener("click", () => {
+        setState("Processing");
+        
+        let thisSearchTags = DOMsearchTags.value.toLowerCase().replace(/ /g, "");
+        let thisSearchOrigin = DOMsearchOrigin.value;
+        searchSelectedAssets = [];
+
+        let thisSplitSearchTags = thisSearchTags.split(",");
+
+        // Find assets
+        for(let x = 0; x < assets.length; x++) {
+            for(let thisID = 1; thisID < 1 + Math.ceil((assets[x].length - 4) / 3); thisID++) {
+                let thisSplitAssetTags = assets[x][4 + (thisID - 1) * 3].toLowerCase().replace(/ /g, "").split(",");
+                let thisSelectAsset = true;
+
+                for(let i = 0; i < thisSplitSearchTags.length; i++) {
+                    if(!thisSplitAssetTags.includes(thisSplitSearchTags[i])) {
+                        thisSelectAsset = false;
+                        break;
+                    }
+                }
+                
+                if(thisSelectAsset) {
+                    searchSelectedAssets.push(x + ";" + thisID);
+                }
+            }
+        };
+
+        // Show assets until page limit is reached
+        console.log(searchSelectedAssets);
+
+
+
+        setState("Idle");
+    });
 
     // Page loading function
     let loadPage = () => {
@@ -754,7 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
             googleSheetsConnected = true;
             
             try {
-                googleObject.createClient(__dirname + "\\volunteer.json", [
+                googleObject.createClient(__dirname + "\\dev.json", [
                     'https://www.googleapis.com/auth/spreadsheets'
                 ]);
                 googleObject.connectSheetsService();
@@ -812,7 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
         googleSheetsConnected = true;
         
         try {
-            googleObject.createClient(__dirname + "\\volunteer.json", [
+            googleObject.createClient(__dirname + "\\dev.json", [
                 'https://www.googleapis.com/auth/spreadsheets'
             ]);
             googleObject.connectSheetsService();
