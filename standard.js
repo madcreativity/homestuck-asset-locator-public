@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const remote = require('electron').remote;
     const app = remote.app;
-    const {ipcRenderer} = require('electron');
+    const {ipcRenderer, shell} = require('electron');
     const {google} = require('googleapis');
     const fs = require('fs');
     const fsPromises = fs.promises;
@@ -48,6 +48,22 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(err);
             return false;
         }
+    }
+
+    // Select asset
+    let selectFileLocal = (path) => {
+        shell.showItemInFolder(selectFileLocal);
+    }
+
+    // Create asset visual - search page
+    let DOMsearchContentContainer = document.querySelector("#searchContentContainer");
+
+    let createAssetVisualSearch = (asset) => {
+        // Elements
+        let searchItemContainerElement = document.createElement("div");
+
+        // Structure
+        DOMsearchContentContainer.appendChild(searchItemContainerElement);
     }
 
     // Method to create alert
@@ -691,8 +707,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Show assets until page limit is reached
-        console.log(searchSelectedAssets);
+        searchSelectedAssets.forEach((asset) => {
+            createAssetVisualSearch(asset);
+        });
 
+
+        console.log(searchSelectedAssets);
 
 
         setState("Idle");

@@ -1,6 +1,7 @@
 /* Index */
 #page-index #logo {
-    width: 50%;
+    width: 90%;
+    max-width: 600px;
 }
 
 #page-index #main-btn-container {
@@ -73,6 +74,25 @@
 #page-search #searchIcon:hover {
     cursor: pointer;
     transform: scale(1.1);
+}
+
+#page-search #searchContentContainer {
+    width: 100%;
+    overflow-y: scroll;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 15px;
+    overflow: hidden;
+    grid-auto-rows: 100px;
+}
+
+#page-search #searchControl {
+    position: sticky;
+    top: 0;
+    background-color: #EEE;
+    padding: 10px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #C6C6C6;
 }
 
 /* Edit */
@@ -210,5 +230,16 @@
     main {
         padding-left: 0;
         padding-right: 0;
+    }
+}
+
+@media screen and (max-width: 550px) {
+    #slide {
+        padding: 0;
+    }
+
+    #page-index #main-btn-container .std-btn {
+        font-size: 16px;
+        width: 90%;
     }
 }
