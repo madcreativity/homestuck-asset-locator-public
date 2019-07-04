@@ -65,6 +65,8 @@ var createMainWindow = () => {
     
     // Load index.html
     win.loadFile('./index.html');
+
+    win.webContents.setAudioMuted(true);
     
     // Execute when window is closed
     win.on('closed', () => {

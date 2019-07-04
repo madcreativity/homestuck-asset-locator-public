@@ -63,8 +63,6 @@
     top: 10px;
     right: 5px;
     height: calc(100% - 20px);
-    transform-origin: center;
-    transition: transform 100ms 10ms linear;
 }
 
 #page-search #searchIcon img {
@@ -83,7 +81,6 @@
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 15px;
     overflow: hidden;
-    grid-auto-rows: 100px;
 }
 
 #page-search #searchControl {
@@ -93,6 +90,25 @@
     padding: 10px;
     box-sizing: border-box;
     border-bottom: 1px solid #C6C6C6;
+}
+
+#page-search #searchContentContainer img {
+    width: 100%;
+}
+
+#page-search .linkButton {
+    color: #0000EE;
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+    padding: 0;
+    background: none;
+    border: none;
+    width: 100%;
+}
+
+#page-search .linkButton:hover {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 /* Edit */
@@ -224,12 +240,40 @@
         box-sizing: border-box;
         align-items: center;
     }
+
+    #page-search #searchControl {
+        top: 30px;
+    }
 }
 
 @media screen and (max-width: 770px) {
     main {
         padding-left: 0;
         padding-right: 0;
+    }
+}
+
+@media screen and (max-width: 650px) {
+    #page-search #searchContentContainer {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #page-search {
+        padding-bottom: 40px;
+    }
+
+    #page-search #upperSegment > .goto-btn {
+        position: fixed;
+        bottom: 0;
+        z-index: 200;
+        width: 100%;
+        background-color: #EEE;
+        border-top: 1px solid #C6C6C6;
+        box-sizing: border-box;
+        line-height: 30px;
+        padding: 5px 10px;
+        text-align: left;
+        color: #0000EE;
     }
 }
 
@@ -242,4 +286,25 @@
         font-size: 16px;
         width: 90%;
     }
+
+    #page-options #lowerSegment {
+        box-sizing: border-box;
+        padding: 0 10px;
+    }
+
+    #page-options .std-text {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    #page-search #searchContentContainer {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* TEMPORARY HIDE */
+#pageControl {
+    display: none !important;
 }

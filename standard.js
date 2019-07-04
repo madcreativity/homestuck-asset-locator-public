@@ -50,17 +50,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Select asset
-    let selectFileLocal = (path) => {
-        shell.showItemInFolder(selectFileLocal);
-    }
-
     // Create asset visual - search page
     let DOMsearchContentContainer = document.querySelector("#searchContentContainer");
 
     let createAssetVisualSearch = (asset) => {
+        let thisSplitData = asset.split(";");
+        let thisAssetData = assets[parseInt(thisSplitData[0])];
+        let thisAssetOffset = (parseInt(thisSplitData[1]) - 1) * 3;
+
+        let thisAssetTypeData = thisAssetData[2 + thisAssetOffset];
+        let thisAssetLinkData = thisAssetData[3 + thisAssetOffset];
+        
         // Elements
         let searchItemContainerElement = document.createElement("div");
+        if(thisAssetTypeData === "Panel") {
+            let searchItemImageElement = document.createElement("img");
+
+            searchItemImageElement.src = thisAssetLinkData;
+
+            searchItemContainerElement.appendChild(searchItemImageElement);
+        } else if(thisAssetTypeData === "Flash") {
+            let thisObjectElement = document.createElement("object");
+            let thisParamMovieElement = document.createElement("param");
+            let thisParamWmodeElement = document.createElement("param");
+            let thisEmbedElement = document.createElement("embed");
+
+            thisParamMovieElement.name = "movie";
+            thisParamMovieElement.value = thisAssetLinkData;
+
+            thisParamWmodeElement.name = "wmode";
+            thisParamWmodeElement.value = "transparent";
+
+            thisEmbedElement.src = thisAssetLinkData;
+
+            
+            thisObjectElement.appendChild(thisParamMovieElement);
+            thisObjectElement.appendChild(thisParamWmodeElement);
+            thisObjectElement.appendChild(thisEmbedElement);
+
+            searchItemContainerElement.appendChild(thisObjectElement);
+        }
+
+        let thisLinkButtonElement = document.createElement("button");
+        thisLinkButtonElement.className = "linkButton";
+        thisLinkButtonElement.textContent = "Open";
+        thisLinkButtonElement.setAttribute("data-asset", asset);
+
+        searchItemContainerElement.appendChild(thisLinkButtonElement);
+        
 
         // Structure
         DOMsearchContentContainer.appendChild(searchItemContainerElement);
@@ -674,7 +711,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Search page elements
     let DOMsearchOrigin = document.querySelector("#search-origin");
     let DOMsearchTags = document.querySelector("#tagControl");
-
+    let DOMsearchShowPanels = document.querySelector("#showPanels");
+    let DOMsearchShowFlashes = document.querySelector("#showFlashes");
     let DOMsearchIcon = document.querySelector("#searchIcon");
 
     // Search -- Search button
@@ -685,6 +723,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let thisSearchOrigin = DOMsearchOrigin.value;
         searchSelectedAssets = [];
 
+        while(DOMsearchContentContainer.firstChild) {
+            DOMsearchContentContainer.removeChild(DOMsearchContentContainer.firstChild);
+        }
+
         let thisSplitSearchTags = thisSearchTags.split(",");
 
         // Find assets
@@ -692,6 +734,10 @@ document.addEventListener('DOMContentLoaded', () => {
             for(let thisID = 1; thisID < 1 + Math.ceil((assets[x].length - 4) / 3); thisID++) {
                 let thisSplitAssetTags = assets[x][4 + (thisID - 1) * 3].toLowerCase().replace(/ /g, "").split(",");
                 let thisSelectAsset = true;
+
+                if((assets[x][2 + (thisID - 1) * 3] === "Panel" && !DOMsearchShowPanels.checked) || (assets[x][2 + (thisID - 1) * 3] === "Flash" && !DOMsearchShowFlashes.checked)) {
+                    continue;
+                }
 
                 for(let i = 0; i < thisSplitSearchTags.length; i++) {
                     if(!thisSplitAssetTags.includes(thisSplitSearchTags[i])) {
@@ -824,7 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
             googleSheetsConnected = true;
             
             try {
-                googleObject.createClient(__dirname + "\\dev.json", [
+                googleObject.createClient(__dirname + "\\volunteer.json", [
                     'https://www.googleapis.com/auth/spreadsheets'
                 ]);
                 googleObject.connectSheetsService();
@@ -882,7 +928,7 @@ document.addEventListener('DOMContentLoaded', () => {
         googleSheetsConnected = true;
         
         try {
-            googleObject.createClient(__dirname + "\\dev.json", [
+            googleObject.createClient(__dirname + "\\volunteer.json", [
                 'https://www.googleapis.com/auth/spreadsheets'
             ]);
             googleObject.connectSheetsService();
@@ -901,6 +947,28 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         setState("Offline");
     }
+
+
+    DOMsearchContentContainer.addEventListener('click', (e) => {
+        if(e.target.className === "linkButton") {
+            let thisFileName = assetsPath + "\\" + padInt(parseInt(e.target.getAttribute("data-asset").split(";")[0]) + 1, 5) + "_" + e.target.getAttribute("data-asset").split(";")[1];
+            
+            if(fileExists(thisFileName + ".gif")) {
+                shell.showItemInFolder(thisFileName + ".gif");
+            } else if(fileExists(thisFileName + ".png")) {
+                shell.showItemInFolder(thisFileName + ".png");
+            } else if(fileExists(thisFileName + ".swf")) {
+                shell.showItemInFolder( thisFileName + ".swf");
+            }
+        }
+    });
+
+    let padInt = (n, width, z) => {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+      }
+
 
     // Finished loading
     ipcRenderer.send('request-mainprocess-action', {
