@@ -94,6 +94,14 @@
 
 #page-search #searchContentContainer img {
     width: 100%;
+    vertical-align: bottom;
+}
+
+#page-search #searchContentContainer object {
+    height: calc(100% - 14.4px);
+    width: 100%;
+    line-height: 0;
+    vertical-align: bottom;
 }
 
 #page-search .linkButton {
@@ -181,6 +189,11 @@
     width: 100%;
 }
 
+#page-edit #editContentContainer object {
+    width: 650px;
+    height: 450px;
+}
+
 #page-edit #applyEditsTagBtn {
     padding: 4px 12px;
     line-height: 25px;
@@ -196,6 +209,7 @@
     font-size: 13px;
     text-decoration: underline;
     display: block;
+    cursor: pointer;
 }
 
 /* Options */

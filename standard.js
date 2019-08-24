@@ -378,11 +378,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Edit page elements
     let DOMeditContentContainer = document.querySelector("#editContentContainer");
 
+    let DOMeditOpenInBrowser = document.querySelector("#editOpenInBrowser");
     let DOMeditOrigin = document.querySelector("#edit-origin");
     let DOMeditPageField = document.querySelector("#edit-pageField");
     let DOMeditIdField = document.querySelector("#edit-idField");
 
     let DOMeditTagsField = document.querySelector("#tagField");
+
+    // Edit page -- open in browser open
+    DOMeditOpenInBrowser.addEventListener("click", () => {
+        shell.openExternal("https://www.homestuck.com/story/" + curPage);
+    });
 
     // Edit page -- asset functionality
     let curOrigin = "";
@@ -518,17 +524,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if(thisPageTypeDat === "Flash") {
             if(DOMeditContentContainer.children[0] !== undefined) {
-                if(DOMeditContentContainer.children[0].tagName !== "OBJECT") {
-                    while(DOMeditContentContainer.firstChild) {
-                        DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
-                    }
-
-                    showAssetFlash(thisPageLinkDat);
-                } else {
-                    DOMeditContentContainer.querySelector("param[name=movie]").value = thisPageLinkDat;
-
-                    DOMeditContentContainer.querySelector("embed").src = thisPageLinkDat;
+                while(DOMeditContentContainer.firstChild) {
+                    DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
                 }
+
+                showAssetFlash(thisPageLinkDat);
             } else {
                 showAssetFlash(thisPageLinkDat);
             }
