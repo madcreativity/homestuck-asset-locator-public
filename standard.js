@@ -429,7 +429,20 @@ document.addEventListener('DOMContentLoaded', () => {
             originSections.push(origin.originStart + ":" + origin.originEnd);
         });
 
-        googleObject.getFieldDataMultiple(spreadsheet, originSections).then((result) => {
+        
+        let usedOriginSections = [];
+        let localOrigins = DOMeditOrigin.value.toLowerCase().replace(" ", "").split(",");
+        
+        for(let i = 0; i < localOrigins.length; i++) {
+            for(let n = 0; n < origins.length; n++) {
+                if(origins[n].origin.toLowerCase().replace(" ", "") === localOrigins[i]) {
+                    usedOriginSections.push(originSections[n]);
+                    break;
+                }
+            }
+        }
+        
+        googleObject.getFieldDataMultiple(spreadsheet, usedOriginSections).then((result) => {
             result.data.valueRanges.forEach((valueRange) => {
                 valueRange.values.forEach((value) => {
                     assets.push(value);
@@ -598,9 +611,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if(DOMeditOrigin.value !== curOrigin) {
                 curOrigin = DOMeditOrigin.value;
+                console.log(curOrigin);
+                loadAssets();
+            } else {
+                showAsset();
             }
-
-            showAsset();
 
             setState("Idle");
         }
