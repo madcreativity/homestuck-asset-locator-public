@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
         googleObject.getFieldData(spreadsheet, "1:1").then((result) => {
             localOrigins = result.data.values[0];
 
-            for(let i = 0; i < localOrigins.length - 1; i += 2) {
+            for(let i = 0; i < localOrigins.length - 1; i += 4) {
                 let originSplit = localOrigins[i + 1].split('-');
                 origins.push(new Origin(localOrigins[i], originSplit[0], originSplit[1]));
             }
