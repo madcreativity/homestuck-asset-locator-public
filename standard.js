@@ -403,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.originEnd = originEnd;
     }
 
-    let getOrigins = (callback) => {
+    let getOrigins = (callback, originValue) => {
         let localOrigins = [];
         origins = [];
 
@@ -415,11 +415,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 origins.push(new Origin(localOrigins[i], originSplit[0], originSplit[1]));
             }
 
-            callback();
+            callback(originValue);
         });
     }
 
-    let loadAssetsFunc = () => {
+    let loadAssetsFunc = (originValue) => {
         // Load assets based on origin
         let originSections = [];
         
@@ -431,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         
         let usedOriginSections = [];
-        let localOrigins = DOMeditOrigin.value.toLowerCase().replace(" ", "").split(",");
+        let localOrigins = originValue.toLowerCase().replace(" ", "").split(",");
         
         for(let i = 0; i < localOrigins.length; i++) {
             for(let n = 0; n < origins.length; n++) {
@@ -466,21 +466,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Get origins
         if(origins.length === 0) {
-            getOrigins(loadAssetsFunc);
+            getOrigins(loadAssetsFunc, DOMeditOrigin.value);
         } else {
-            loadAssetsFunc();
+            loadAssetsFunc(DOMeditOrigin.value);
         }
     }
 
     let loadAssetsSearch = () => {
         curOrigin = settings[1];
+        DOMsearchOrigin.value = settings[1];
         currentResultsPage = 1;
 
         // Get origins
         if(origins.length === 0) {
-            getOrigins(loadAssetsFunc);
+            getOrigins(loadAssetsFunc, DOMsearchOrigin.value);
         } else {
-            loadAssetsFunc();
+            loadAssetsFunc(DOMsearchOrigin.value);
         }
     }
 
