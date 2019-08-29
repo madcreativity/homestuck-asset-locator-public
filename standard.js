@@ -397,10 +397,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let origins = [];
     let assets = [];
 
-    function Origin(origin, originStart, originEnd) {
+    function Origin(origin, originStart, originEnd, originLink, originMetatagStart, originMetatagEnd) {
         this.origin = origin;
         this.originStart = originStart;
         this.originEnd = originEnd;
+        this.originLink = originLink;
+        this.originMetatagStart = originMetatagStart;
+        this.originMetatagEnd = originMetatagEnd;
     }
 
     let getOrigins = (callback, originValue) => {
@@ -412,7 +415,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             for(let i = 0; i < localOrigins.length - 1; i += 4) {
                 let originSplit = localOrigins[i + 1].split('-');
-                origins.push(new Origin(localOrigins[i], originSplit[0], originSplit[1]));
+                let originMetatagSplit = localOrigins[i + 3].split('-');
+                origins.push(new Origin(localOrigins[i], originSplit[0], originSplit[1], localOrigins[i + 2], originMetatagSplit[0], originMetatagSplit[1]));
             }
 
             callback(originValue);
@@ -967,14 +971,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     DOMsearchContentContainer.addEventListener('click', (e) => {
         if(e.target.className === "linkButton") {
-            let thisFileName = assetsPath + "\\" + padInt(parseInt(e.target.getAttribute("data-asset").split(";")[0]) + 1, 5) + "_" + e.target.getAttribute("data-asset").split(";")[1];
-            
-            if(fileExists(thisFileName + ".gif")) {
-                shell.showItemInFolder(thisFileName + ".gif");
-            } else if(fileExists(thisFileName + ".png")) {
-                shell.showItemInFolder(thisFileName + ".png");
-            } else if(fileExists(thisFileName + ".swf")) {
-                shell.showItemInFolder( thisFileName + ".swf");
+            if(settings[0] === "On") {
+                let thisFileName = assetsPath + "\\" + padInt(parseInt(e.target.getAttribute("data-asset").split(";")[0]) + 1, 5) + "_" + e.target.getAttribute("data-asset").split(";")[1];
+                
+                if(fileExists(thisFileName + ".gif")) {
+                    shell.showItemInFolder(thisFileName + ".gif");
+                } else if(fileExists(thisFileName + ".png")) {
+                    shell.showItemInFolder(thisFileName + ".png");
+                } else if(fileExists(thisFileName + ".swf")) {
+                    shell.showItemInFolder( thisFileName + ".swf");
+                }
+            } else {
+                shell.openExternal(origins[0].originLink + (parseInt(e.target.getAttribute("data-asset").split(";")[0]) + 1));
             }
         }
     });
