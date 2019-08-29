@@ -830,7 +830,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // Options: Offline preparation
     let DOMofflinePreparationOptionBtn = document.querySelector("#offlinePreparationOptionBtn");
     DOMofflinePreparationOptionBtn.addEventListener('click', () => {
-       // TODO: Download assets and correct data from spreadsheet 
+        // TODO: Give instructions to user
+        // Open download link to assets
+        shell.openExternal("https://drive.google.com/open?id=1lzDHaNP9RRp1GxV7sM9QQREaVMpFB9QB");
+
+        // Download spreadsheet data
+        let localOrigins = [];
+        let localOriginsSections = [];
+       
+        // Origin data
+        googleObject.getFieldData(spreadsheet, "1:1").then((result) => {
+            localOrigins = result.data.values[0];
+            
+            for(let i = 0; i < localOrigins.length; i += 4) {
+                localOriginsSections[localOriginsSections.length] = localOrigins[i + 1].replace("-", ":");
+            }
+
+            fs.writeFileSync(app.getPath('userData') + "\\origin_cache.txt", JSON.stringify(localOrigins));
+
+
+            // Asset data
+            googleObject.getFieldDataMultiple(spreadsheet, localOriginsSections).then((result) => {
+                fs.writeFileSync(app.getPath('userData') + "\\assetData_cache.txt", JSON.stringify(result.data.valueRanges));
+            });
+        });
+
+        // Update metatag data
+        DOMupdateMetatagDataOptionBtn.click();
     });
 
     // Options: Update metatag data
