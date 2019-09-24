@@ -270,6 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
+
+    let metatags;
     
     // Folder structure
     updateLoadingMessage('Creating folder & file structure');
@@ -297,6 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Metatag cache
     if(!fileExists(metatagsPath)) {
         fs.writeFileSync(metatagsPath, "");
+    } else {
+        metatags = fs.readFileSync(metatagsPath).toString().split("|");
     }
     
     
@@ -749,6 +753,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let thisSplitSearchTags = thisSearchTags.split(",");
 
+
+        // Finding correct metatags
+        let thisAllTags = [];
+
+        thisSplitSearchTags.forEach((tag) => {
+            for(let i = 0; i < metatags.length; i++) {
+                let thisMetatagSplit = metatags[i].toLowerCase().replace(/ /g, "").split(",");
+
+                if(thisMetatagSplit.includes(tag)) {
+                    thisAllTags[thisAllTags.length] = thisMetatagSplit;
+                    break;
+                }
+            }
+        });
+
+
         // Find assets
         for(let x = 0; x < assets.length; x++) {
             for(let thisID = 1; thisID < 1 + Math.ceil((assets[x].length - 4) / 3); thisID++) {
@@ -759,8 +779,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     continue;
                 }
 
-                for(let i = 0; i < thisSplitSearchTags.length; i++) {
-                    if(!thisSplitAssetTags.includes(thisSplitSearchTags[i])) {
+                for(let i = 0; i < thisAllTags.length; i++) {
+                    let thisInnerSelectAsset = false;
+
+                    for(let n = 0; n < thisAllTags[i].length; n++) {
+                        if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                            thisInnerSelectAsset = true;
+                            break;
+                        }
+                    }
+
+                    if(!thisInnerSelectAsset) {
                         thisSelectAsset = false;
                         break;
                     }
@@ -776,9 +805,6 @@ document.addEventListener('DOMContentLoaded', () => {
         searchSelectedAssets.forEach((asset) => {
             createAssetVisualSearch(asset);
         });
-
-
-        console.log(searchSelectedAssets);
 
 
         setState("Idle");
@@ -895,7 +921,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // Save metatags to file
-                fs.writeFileSync(metatagsPath, metatagOutput);                    
+                fs.writeFileSync(metatagsPath, metatagOutput);    
+                
+                metatags = metatagsOutput.split("|");
 
                 setState("Idle");
             });
