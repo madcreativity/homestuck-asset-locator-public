@@ -486,10 +486,30 @@ document.addEventListener('DOMContentLoaded', () => {
         currentResultsPage = 1;
 
         // Get origins
-        if(origins.length === 0) {
-            getOrigins(loadAssetsFunc, DOMsearchOrigin.value);
+        if(settings[0] === "Off") {
+            if(origins.length === 0) {
+                getOrigins(loadAssetsFunc, DOMsearchOrigin.value);
+            } else {
+                loadAssetsFunc(DOMsearchOrigin.value);
+            }
         } else {
-            loadAssetsFunc(DOMsearchOrigin.value);
+            // TODO: Load offline assets correctly
+            let thisOrigins = JSON.parse(fs.readFileSync(app.getPath('userData') + "\\origin_cache.txt").toString());
+            origins = [];
+            
+            for(let i = 0; i < thisOrigins.length - 1; i += 4) {
+                let originSplit = thisOrigins[i + 1].split('-');
+                let originMetatagSplit = thisOrigins[i + 3].split('-');
+                origins.push(new Origin(thisOrigins[i], originSplit[0], originSplit[1], thisOrigins[i + 2], originMetatagSplit[0], originMetatagSplit[1]));
+            }
+
+
+            let thisAssets = JSON.parse(fs.readFileSync(app.getPath('userData') + "\\assetData_cache.txt").toString());
+            assets = [];
+
+            thisAssets[0].values.forEach((value) => {
+                assets.push(value);
+            });
         }
     }
 
@@ -729,7 +749,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Search page variables
-    let currentResultsPage = 1;
     let searchSelectedAssets = [];
 
     // Search page elements
@@ -744,7 +763,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setState("Processing");
         
         let thisSearchTags = DOMsearchTags.value.toLowerCase().replace(/ /g, "");
-        let thisSearchOrigin = DOMsearchOrigin.value;
         searchSelectedAssets = [];
 
         while(DOMsearchContentContainer.firstChild) {
@@ -856,33 +874,40 @@ document.addEventListener('DOMContentLoaded', () => {
     // Options: Offline preparation
     let DOMofflinePreparationOptionBtn = document.querySelector("#offlinePreparationOptionBtn");
     DOMofflinePreparationOptionBtn.addEventListener('click', () => {
-        // TODO: Give instructions to user
-        // Open download link to assets
-        shell.openExternal("https://drive.google.com/open?id=1lzDHaNP9RRp1GxV7sM9QQREaVMpFB9QB");
-
-        // Download spreadsheet data
-        let localOrigins = [];
-        let localOriginsSections = [];
-       
-        // Origin data
-        googleObject.getFieldData(spreadsheet, "1:1").then((result) => {
-            localOrigins = result.data.values[0];
+        if(settings[0] === "Off") {
+            createAlert("Info", "Download the ZIP and export all the assets inside to: \n \"" + app.getPath('userData') + "\\assets\\\"");
             
-            for(let i = 0; i < localOrigins.length; i += 4) {
-                localOriginsSections[localOriginsSections.length] = localOrigins[i + 1].replace("-", ":");
-            }
+            // Open download link to assets
+            shell.openExternal("https://drive.google.com/open?id=1lzDHaNP9RRp1GxV7sM9QQREaVMpFB9QB");
 
-            fs.writeFileSync(app.getPath('userData') + "\\origin_cache.txt", JSON.stringify(localOrigins));
+            // Download spreadsheet data
+            let localOrigins = [];
+            let localOriginsSections = [];
+        
+            // Origin data
+            googleObject.getFieldData(spreadsheet, "1:1").then((result) => {
+                localOrigins = result.data.values[0];
+                
+                for(let i = 0; i < localOrigins.length; i += 4) {
+                    localOriginsSections[localOriginsSections.length] = localOrigins[i + 1].replace("-", ":");
+                }
+
+                fs.writeFileSync(app.getPath('userData') + "\\origin_cache.txt", JSON.stringify(localOrigins));
 
 
-            // Asset data
-            googleObject.getFieldDataMultiple(spreadsheet, localOriginsSections).then((result) => {
-                fs.writeFileSync(app.getPath('userData') + "\\assetData_cache.txt", JSON.stringify(result.data.valueRanges));
+                // Asset data
+                googleObject.getFieldDataMultiple(spreadsheet, localOriginsSections).then((result) => {
+                    fs.writeFileSync(app.getPath('userData') + "\\assetData_cache.txt", JSON.stringify(result.data.valueRanges));
+
+                    setState("Idle");
+                });
             });
-        });
 
-        // Update metatag data
-        DOMupdateMetatagDataOptionBtn.click();
+            // Update metatag data
+            DOMupdateMetatagDataOptionBtn.click();
+        } else {
+            createAlert("Error", "You must be online to download the data needed for offline mode.");
+        }
     });
 
     // Options: Update metatag data
@@ -923,13 +948,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Save metatags to file
                 fs.writeFileSync(metatagsPath, metatagOutput);    
                 
-                metatags = metatagsOutput.split("|");
+                metatags = metatagOutput.split("|");
 
                 setState("Idle");
             });
-
-            
-
 
             fs.writeFileSync(metatagsPath, metatagOutput);
         } else {
