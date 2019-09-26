@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    updateLoadingMessage('Setting up system base.');
+
     // Ensure that required files exist - if not, create them
     let createDirectory = async (dirpath) => {
         try {
@@ -599,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return column;
     }
-
+    
     // Edit page -- Apply edits button
     let DOMeditApplyTagEditsBtn = document.querySelector("#applyEditsTagBtn");
 
@@ -705,6 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let DOMeditPageBack = document.querySelector("#page-edit-back");
     let DOMeditPageForward = document.querySelector("#page-edit-forward");
 
+    // Edit page -- Previous asset
     DOMeditPageBack.addEventListener('click', () => {
         setState("Processing");
 
@@ -723,6 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setState("Idle");
     });
 
+    // Edit page - Next asset
     DOMeditPageForward.addEventListener('click', () => {
         setState("Processing");
 
@@ -770,6 +774,83 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let thisSplitSearchTags = thisSearchTags.split(",");
+
+
+        // Find tags
+        let thisAddFound = 0;
+        let thisRemoveFound = 0;
+
+        let thisFoundTags = [];
+        let thisFoundTagsIndex = 0;
+
+        for(let i = 0; i < thisSearchTags.length; i++) {
+            // EXCLUDE
+            if(thisSearchTags[i] === '-') {
+                if(thisRemoveFound === 1) {
+                    thisRemoveFound = 2
+                } else if(thisRemoveFound === 0) {
+                    thisRemoveFound = 1;
+                }
+            } else if(thisRemoveFound === 1) {
+                thisRemoveFound = 0;
+            }
+
+            // ADD Initial Catch
+            if(i === 0 && thisRemoveFound === 0) {
+                thisAddFound = 1;
+                if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "";
+                thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i];
+            }
+
+            // ADD
+            if(thisSearchTags[i] === ',' && thisAddFound === 0) {
+                thisAddFound = 1;
+            }
+
+            // OR
+            if(thisSearchTags[i] === '|') {
+                thisFoundTags[thisFoundTagsIndex] = "|";
+                thisFoundTagsIndex++;
+
+                if(i + 1 < thisSearchTags.length) {
+                    if(thisSearchTags[i + 1] !== '-') {
+                        thisAddFound = 1;
+                    }
+                }
+            }
+
+            // EXCLUDE Complete
+            if(thisRemoveFound === 2) {
+                if(i + 1 >= thisSearchTags.length || thisSearchTags[i + 1] === ',' || thisSearchTags[i + 1] === '-' || thisSearchTags[i + 1] === '|') {
+                    thisRemoveFound = 0;
+                    thisFoundTagsIndex++;
+
+                    if(i + 1 >= thisSearchTags.length) {
+                        break;
+                    }
+                } else {
+                    if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "--";
+                    thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i + 1];
+                }
+            }
+
+            // AND Complete
+            if(thisAddFound === 1) {
+                if(i + 1 >= thisSearchTags.length || thisSearchTags[i + 1] === ',' || thisSearchTags[i + 1] === '-' || thisSearchTags[i + 1] === '|') {
+                    thisAddFound = 0;
+                    thisFoundTagsIndex++;
+
+                    if(i + 1 >= thisSearchTags.length) {
+                        break;
+                    }
+                } else {
+                    if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "";
+                    thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i + 1];
+                }
+            }
+        }
+
+        console.log(thisFoundTags);
 
 
         // Finding correct metatags
