@@ -775,7 +775,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let thisSplitSearchTags = thisSearchTags.split(",");
 
-
         // Find tags
         let thisAddFound = 0;
         let thisRemoveFound = 0;
@@ -888,7 +887,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 for(let i = 0; i < thisFoundTags.length; i++) {
                     let thisInnerSelectAsset = false;
 
-                    if(thisFoundTags[i].includes("--")) {
+                    if(i + 1 < thisFoundTags.length && thisFoundTags[i + 1] === "|") {
+                        // TODO: OR search syntax
+                        let thisInnerSelectAssetOrBefore = false;
+                        let thisInnerSelectAssetOrAfter = false;
+
+                        // Before
+                        if(thisFoundTags[i].includes("--")) {
+                            for(let n = 0; n < thisAllTags[i].length; n++) {
+                                if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                    thisInnerSelectAssetOrBefore = false;
+                                    break;
+                                } else {
+                                    thisInnerSelectAssetOrBefore = true;
+                                }
+                            }
+                        } else {
+                            for(let n = 0; n < thisAllTags[i].length; n++) {
+                                if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                    thisInnerSelectAssetOrBefore = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // After
+                        if(thisFoundTags[i + 2].includes("--")) {
+                            for(let n = 0; n < thisAllTags[i + 2].length; n++) {
+                                if(thisSplitAssetTags.includes(thisAllTags[i + 2][n])) {
+                                    thisInnerSelectAssetOrAfter = false;
+                                    break;
+                                } else {
+                                    thisInnerSelectAssetOrAfter = true;
+                                }
+                            }
+                        } else {
+                            for(let n = 0; n < thisAllTags[i + 2].length; n++) {
+                                if(thisSplitAssetTags.includes(thisAllTags[i + 2][n])) {
+                                    thisInnerSelectAssetOrAfter = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        i += 2;
+
+
+                        if(thisInnerSelectAssetOrAfter || thisInnerSelectAssetOrBefore) {
+                            thisInnerSelectAsset = true;
+                        }
+                    } else if(thisFoundTags[i].includes("--")) {
                         for(let n = 0; n < thisAllTags[i].length; n++) {
                             if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
                                 thisInnerSelectAsset = false;
@@ -897,8 +945,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                 thisInnerSelectAsset = true;
                             }
                         }
-                    } else if(i + 1 < thisFoundTags.length && thisFoundTags[i + 1] === "|") {
-                        // TODO: OR search syntax
                     } else {
                         for(let n = 0; n < thisAllTags[i].length; n++) {
                             if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
