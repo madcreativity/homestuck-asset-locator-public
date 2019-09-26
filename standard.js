@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // System variables
     const ALPHABET =  ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "Y", "Z"];
 
-    const version = "beta v0.6";
+    const version = "beta v0.8";
     let settings = [];
     
     let spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
@@ -850,23 +850,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        console.log(thisFoundTags);
-
-
         // Finding correct metatags
         let thisAllTags = [];
 
-        thisSplitSearchTags.forEach((tag) => {
-            for(let i = 0; i < metatags.length; i++) {
-                let thisMetatagSplit = metatags[i].toLowerCase().replace(/ /g, "").split(",");
+        thisFoundTags.forEach((tag) => {
+            if(tag !== "|") {
+                for(let i = 0; i < metatags.length; i++) {
+                    let thisMetatagSplit = metatags[i].toLowerCase().replace(/ /g, "").split(",");
 
-                if(thisMetatagSplit.includes(tag)) {
-                    thisAllTags[thisAllTags.length] = thisMetatagSplit;
-                    break;
+                    if(thisMetatagSplit.includes(tag.replace("--", ""))) {
+                        thisAllTags[thisAllTags.length] = thisMetatagSplit;
+
+                        break;
+                    }
                 }
+            } else {
+                thisAllTags[thisAllTags.length] = [""];
             }
         });
 
+        if(thisAllTags.length != thisFoundTags.length) {
+            setState("Error");
+            return;
+        }
 
         // Find assets
         for(let x = 0; x < assets.length; x++) {
@@ -877,14 +883,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 if((assets[x][2 + (thisID - 1) * 3] === "Panel" && !DOMsearchShowPanels.checked) || (assets[x][2 + (thisID - 1) * 3] === "Flash" && !DOMsearchShowFlashes.checked)) {
                     continue;
                 }
+                
 
-                for(let i = 0; i < thisAllTags.length; i++) {
+                for(let i = 0; i < thisFoundTags.length; i++) {
                     let thisInnerSelectAsset = false;
 
-                    for(let n = 0; n < thisAllTags[i].length; n++) {
-                        if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
-                            thisInnerSelectAsset = true;
-                            break;
+                    if(thisFoundTags[i].includes("--")) {
+                        for(let n = 0; n < thisAllTags[i].length; n++) {
+                            if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                thisInnerSelectAsset = false;
+                                break;
+                            } else {
+                                thisInnerSelectAsset = true;
+                            }
+                        }
+                    } else if(i + 1 < thisFoundTags.length && thisFoundTags[i + 1] === "|") {
+                        // TODO: OR search syntax
+                    } else {
+                        for(let n = 0; n < thisAllTags[i].length; n++) {
+                            if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                thisInnerSelectAsset = true;
+                                break;
+                            }
                         }
                     }
 
@@ -893,10 +913,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                     }
                 }
-                
+
                 if(thisSelectAsset) {
                     searchSelectedAssets.push(x + ";" + thisID);
                 }
+
             }
         };
 
@@ -905,7 +926,7 @@ document.addEventListener('DOMContentLoaded', () => {
             createAssetVisualSearch(asset);
         });
 
-
+        
         setState("Idle");
     });
 
