@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // System variables
     const ALPHABET =  ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "Y", "Z"];
 
-    const version = "beta v0.8";
+    const version = "beta v0.9";
     let settings = [];
     
     let spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
@@ -62,6 +62,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let thisAssetTypeData = thisAssetData[2 + thisAssetOffset];
         let thisAssetLinkData = thisAssetData[3 + thisAssetOffset];
+
+        if(settings[0] === "On") {
+            let thisAcceptedType = "";
+            let thisAssetBase = assetsPath + "\\" + padInt(parseInt(thisSplitData[0]) + 1, 5) + "_" + thisSplitData[1];
+
+            if(fileExists(thisAssetBase + ".gif")) {
+                thisAcceptedType = ".gif";
+            } else if(fileExists(thisAssetBase + ".png")) {
+                thisAcceptedType = ".png";
+            } else if(fileExists(thisAssetBase + ".swf")) {
+                thisAcceptedType = ".swf";
+            }
+
+            thisAssetLinkData = thisAssetBase + thisAcceptedType;
+        }
+        
         
         // Elements
         let searchItemContainerElement = document.createElement("div");
@@ -495,7 +511,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadAssetsFunc(DOMsearchOrigin.value);
             }
         } else {
-            // TODO: Load offline assets correctly
             let thisOrigins = JSON.parse(fs.readFileSync(app.getPath('userData') + "\\origin_cache.txt").toString());
             origins = [];
             
@@ -875,8 +890,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Find assets
         for(let x = 0; x < assets.length; x++) {
-            for(let thisID = 1; thisID < 1 + Math.ceil((assets[x].length - 4) / 3); thisID++) {
-                let thisSplitAssetTags = assets[x][4 + (thisID - 1) * 3].toLowerCase().replace(/ /g, "").split(",");
+            for(let thisID = 1; thisID < parseInt(assets[x][0]) + 1; thisID++) {
+                let thisSplitAssetTags = (assets[x][4 + (thisID - 1) * 3] || "").toLowerCase().replace(/ /g, "").split(",");
                 let thisSelectAsset = true;
 
                 if((assets[x][2 + (thisID - 1) * 3] === "Panel" && !DOMsearchShowPanels.checked) || (assets[x][2 + (thisID - 1) * 3] === "Flash" && !DOMsearchShowFlashes.checked)) {
@@ -888,7 +903,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     let thisInnerSelectAsset = false;
 
                     if(i + 1 < thisFoundTags.length && thisFoundTags[i + 1] === "|") {
-                        // TODO: OR search syntax
                         let thisInnerSelectAssetOrBefore = false;
                         let thisInnerSelectAssetOrAfter = false;
 
