@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // System variables
     const ALPHABET =  ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "Y", "Z"];
 
-    const version = "beta v0.9";
+    const version = "Vol v1.0";
     let settings = [];
     
     let spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
@@ -190,7 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
             new Promise((resolve, reject) => {
                 client.authorize((err, tokens) => {
                     if (err) {
-                        createAlert("Error", "Could not connect to Google Service.");
+                        settings[0] = "On";
+                        setState("Offline");
+                        createAlert("Error", "Could not connect to Google Service. Offline mode is being enabled for you.");
                     } else {
                         google.options({
                             auth: client
@@ -1124,29 +1126,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Options: Reconnect to service
     let DOMreconnectServiceOptionBtn = document.querySelector("#reconnectServiceOptionBtn");
     DOMreconnectServiceOptionBtn.addEventListener('click', () => {
-        if(settings[0] == "Off") {
-            googleSheetsConnected = true;
-            
-            try {
-                googleObject.createClient(__dirname + "\\volunteer.json", [
-                    'https://www.googleapis.com/auth/spreadsheets'
-                ]);
-                googleObject.connectSheetsService();
-            }
-            catch(err) {
-                googleSheetsConnected = false;
-                console.error(err);
-                setState("Offline");
-
-                createAlert("Error", "Could not connect to Google Service.");
-            }
+        googleSheetsConnected = true;
     
-            if(googleSheetsConnected) {
-                setState("Online");
-            }
+        try {
+            googleObject.createClient(__dirname + "\\volunteer.json", [
+                'https://www.googleapis.com/auth/spreadsheets'
+            ]);
+            googleObject.connectSheetsService();
+        }
+        catch(err) {
+            googleSheetsConnected = false;
+            console.error(err);
+        }
+        
+        if(googleSheetsConnected) {
+            setState("Online");
+            updateLoadingMessage("Succesfully connected to Google Sheets.");
         } else {
-
-            createAlert("Error", "Cannot connect to Google Service with offline mode enabled.");
+            settings[0] = "On";
+            setState("Offline");
+            updateLoadingMessage("Could not connect to Google Sheets. Offline mode is being enabled for you.");
         }
     });
 
@@ -1182,7 +1181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let googleObject = new GoogleService();
     
-    if(settings[0] == "Off") {
+    if(settings[0] === "Off") {
         googleSheetsConnected = true;
         
         try {
@@ -1195,12 +1194,14 @@ document.addEventListener('DOMContentLoaded', () => {
             googleSheetsConnected = false;
             console.error(err);
         }
-
+        
         if(googleSheetsConnected) {
             setState("Online");
-            updateLoadingMessage("Succesfully connected to Google Sheets");
+            updateLoadingMessage("Succesfully connected to Google Sheets.");
         } else {
-            updateLoadingMessage("Could not connect to Google Sheets");
+            settings[0] = "On";
+            setState("Offline");
+            updateLoadingMessage("Could not connect to Google Sheets. Offline mode is being enabled for you.");
         }
     } else {
         setState("Offline");
@@ -1229,7 +1230,7 @@ document.addEventListener('DOMContentLoaded', () => {
         z = z || '0';
         n = n + '';
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-      }
+    }
 
 
     // Finished loading
