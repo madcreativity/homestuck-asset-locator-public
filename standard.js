@@ -1141,40 +1141,41 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if(googleSheetsConnected) {
             setState("Online");
-            updateLoadingMessage("Succesfully connected to Google Sheets.");
+            createAlert("Info", "Succesfully connected to Google Sheets.");
         } else {
             settings[0] = "On";
             setState("Offline");
-            updateLoadingMessage("Could not connect to Google Sheets. Offline mode is being enabled for you.");
+            createAlert("Error", "Could not connect to Google Sheets. Offline mode is being enabled for you.");
         }
     });
 
     
     // Options - Save changes button
     let DOMdefaultOriginOption = document.querySelector("#defaultOriginOption");
-    let DOMgifAnimationsOption = document.querySelector("#gifAnimationsOption");
+    //let DOMgifAnimationsOption = document.querySelector("#gifAnimationsOption");
     let DOMofflineModeOption = document.querySelector("#offlineModeOption");
 
     let DOMsaveButton = document.querySelector("#saveBtn");
 
 
     DOMsaveButton.addEventListener('click', () => {
-        // Save option data to file
-        fs.writeFileSync(settingsPath, 
-            DOMofflineModeOption.textContent + ","
-          + DOMdefaultOriginOption.value + ","
-          + DOMgifAnimationsOption.textContent
-        );
-
         settings[0] = DOMofflineModeOption.textContent;
         settings[1] = DOMdefaultOriginOption.value;
-        settings[2] = DOMgifAnimationsOption.textContent;
+        //settings[2] = DOMgifAnimationsOption.textContent;
+        settings[2] = "Auto";
+
+        // Save option data to file
+        fs.writeFileSync(settingsPath, 
+            settings[0] + ","
+          + settings[1] + ","
+          + settings[2]
+        );
     });
 
     // Set default origin option
     DOMofflineModeOption.textContent = settings[0];
     DOMdefaultOriginOption.value = settings[1];
-    DOMgifAnimationsOption.textContent = settings[2];
+    //DOMgifAnimationsOption.textContent = settings[2];
     
     // Google Sheets methods
     updateLoadingMessage('Connecting to Google Sheets');
@@ -1197,14 +1198,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if(googleSheetsConnected) {
             setState("Online");
-            updateLoadingMessage("Succesfully connected to Google Sheets.");
         } else {
             settings[0] = "On";
             setState("Offline");
-            updateLoadingMessage("Could not connect to Google Sheets. Offline mode is being enabled for you.");
+            createAlert("Error", "Could not connect to Google Sheets. Offline mode is being enabled for you.");
         }
     } else {
         setState("Offline");
+        createAlert("Info", "Offline mode is enabled.");
     }
 
 
