@@ -348,6 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load settings
     settings = fs.readFileSync(settingsPath).toString().split(',');
+    let prevSettings = settings;
 
     
     // Metatag cache
@@ -718,13 +719,12 @@ document.addEventListener('DOMContentLoaded', () => {
     DOMeditSelectBtn.addEventListener('click', () => {
         if(getState() !== "Processing") {
             setState("Processing");
-
+            
             curPage = parseInt(DOMeditPageField.value);
             curID = parseInt(DOMeditIdField.value);
 
             if(DOMeditOrigin.value !== curOrigin) {
                 curOrigin = DOMeditOrigin.value;
-                console.log(curOrigin);
                 loadAssets();
             } else {
                 showAsset();
@@ -847,213 +847,212 @@ document.addEventListener('DOMContentLoaded', () => {
     // Search -- Search button
     DOMsearchIcon.addEventListener("click", () => {
         setState("Processing");
-        
-        let thisSearchTags = DOMsearchTags.value.toLowerCase().replace(/ /g, "");
-        searchSelectedAssets = [];
 
-        while(DOMsearchContentContainer.firstChild) {
-            DOMsearchContentContainer.removeChild(DOMsearchContentContainer.firstChild);
-        }
-
-        let thisSplitSearchTags = thisSearchTags.split(",");
-
-        // Find tags
-        let thisAddFound = 0;
-        let thisRemoveFound = 0;
-
-        let thisFoundTags = [];
-        let thisFoundTagsIndex = 0;
-
-        for(let i = 0; i < thisSearchTags.length; i++) {
-            // EXCLUDE
-            if(thisSearchTags[i] === '-') {
-                if(thisRemoveFound === 1) {
-                    thisRemoveFound = 2
-                } else if(thisRemoveFound === 0) {
-                    thisRemoveFound = 1;
-                }
-            } else if(thisRemoveFound === 1) {
-                thisRemoveFound = 0;
+        if(DOMsearchTags.value.replace(/ /g, "") !== "") {
+            let thisSearchTags = DOMsearchTags.value.toLowerCase().replace(/ /g, "");
+            searchSelectedAssets = [];
+            
+            while(DOMsearchContentContainer.firstChild) {
+                DOMsearchContentContainer.removeChild(DOMsearchContentContainer.firstChild);
             }
-
-            // ADD Initial Catch
-            if(i === 0 && thisRemoveFound === 0) {
-                thisAddFound = 1;
-                if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "";
-                thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i];
-            }
-
-            // ADD
-            if(thisSearchTags[i] === ',' && thisAddFound === 0) {
-                thisAddFound = 1;
-            }
-
-            // OR
-            if(thisSearchTags[i] === '|') {
-                thisFoundTags[thisFoundTagsIndex] = "|";
-                thisFoundTagsIndex++;
-
-                if(i + 1 < thisSearchTags.length) {
-                    if(thisSearchTags[i + 1] !== '-') {
-                        thisAddFound = 1;
+    
+            // Find tags
+            let thisAddFound = 0;
+            let thisRemoveFound = 0;
+    
+            let thisFoundTags = [];
+            let thisFoundTagsIndex = 0;
+    
+            for(let i = 0; i < thisSearchTags.length; i++) {
+                // EXCLUDE
+                if(thisSearchTags[i] === '-') {
+                    if(thisRemoveFound === 1) {
+                        thisRemoveFound = 2
+                    } else if(thisRemoveFound === 0) {
+                        thisRemoveFound = 1;
                     }
-                }
-            }
-
-            // EXCLUDE Complete
-            if(thisRemoveFound === 2) {
-                if(i + 1 >= thisSearchTags.length || thisSearchTags[i + 1] === ',' || thisSearchTags[i + 1] === '-' || thisSearchTags[i + 1] === '|') {
+                } else if(thisRemoveFound === 1) {
                     thisRemoveFound = 0;
-                    thisFoundTagsIndex++;
-
-                    if(i + 1 >= thisSearchTags.length) {
-                        break;
-                    }
-                } else {
-                    if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "--";
-                    thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i + 1];
                 }
-            }
-
-            // AND Complete
-            if(thisAddFound === 1) {
-                if(i + 1 >= thisSearchTags.length || thisSearchTags[i + 1] === ',' || thisSearchTags[i + 1] === '-' || thisSearchTags[i + 1] === '|') {
-                    thisAddFound = 0;
-                    thisFoundTagsIndex++;
-
-                    if(i + 1 >= thisSearchTags.length) {
-                        break;
-                    }
-                } else {
+    
+                // ADD Initial Catch
+                if(i === 0 && thisRemoveFound === 0) {
+                    thisAddFound = 1;
                     if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "";
-                    thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i + 1];
+                    thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i];
                 }
-            }
-        }
-
-        // Finding correct metatags
-        let thisAllTags = [];
-
-        thisFoundTags.forEach((tag) => {
-            if(tag !== "|") {
-                for(let i = 0; i < metatags.length; i++) {
-                    let thisMetatagSplit = metatags[i].toLowerCase().replace(/ /g, "").split(",");
-
-                    if(thisMetatagSplit.includes(tag.replace("--", ""))) {
-                        thisAllTags[thisAllTags.length] = thisMetatagSplit;
-
-                        break;
+    
+                // ADD
+                if(thisSearchTags[i] === ',' && thisAddFound === 0) {
+                    thisAddFound = 1;
+                }
+    
+                // OR
+                if(thisSearchTags[i] === '|') {
+                    thisFoundTags[thisFoundTagsIndex] = "|";
+                    thisFoundTagsIndex++;
+    
+                    if(i + 1 < thisSearchTags.length) {
+                        if(thisSearchTags[i + 1] !== '-') {
+                            thisAddFound = 1;
+                        }
                     }
                 }
-            } else {
-                thisAllTags[thisAllTags.length] = [""];
-            }
-        });
-
-        if(thisAllTags.length != thisFoundTags.length) {
-            setState("Error");
-            return;
-        }
-
-        // Find assets
-        for(let x = 0; x < assets.length; x++) {
-            for(let thisID = 1; thisID < parseInt(assets[x][0]) + 1; thisID++) {
-                let thisSplitAssetTags = (assets[x][4 + (thisID - 1) * 3] || "").toLowerCase().replace(/ /g, "").split(",");
-                let thisSelectAsset = true;
-
-                if((assets[x][2 + (thisID - 1) * 3] === "Panel" && !DOMsearchShowPanels.checked) || (assets[x][2 + (thisID - 1) * 3] === "Flash" && !DOMsearchShowFlashes.checked)) {
-                    continue;
-                }
-                
-
-                for(let i = 0; i < thisFoundTags.length; i++) {
-                    let thisInnerSelectAsset = false;
-
-                    if(i + 1 < thisFoundTags.length && thisFoundTags[i + 1] === "|") {
-                        let thisInnerSelectAssetOrBefore = false;
-                        let thisInnerSelectAssetOrAfter = false;
-
-                        // Before
-                        if(thisFoundTags[i].includes("--")) {
-                            for(let n = 0; n < thisAllTags[i].length; n++) {
-                                if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
-                                    thisInnerSelectAssetOrBefore = false;
-                                    break;
-                                } else {
-                                    thisInnerSelectAssetOrBefore = true;
-                                }
-                            }
-                        } else {
-                            for(let n = 0; n < thisAllTags[i].length; n++) {
-                                if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
-                                    thisInnerSelectAssetOrBefore = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        // After
-                        if(thisFoundTags[i + 2].includes("--")) {
-                            for(let n = 0; n < thisAllTags[i + 2].length; n++) {
-                                if(thisSplitAssetTags.includes(thisAllTags[i + 2][n])) {
-                                    thisInnerSelectAssetOrAfter = false;
-                                    break;
-                                } else {
-                                    thisInnerSelectAssetOrAfter = true;
-                                }
-                            }
-                        } else {
-                            for(let n = 0; n < thisAllTags[i + 2].length; n++) {
-                                if(thisSplitAssetTags.includes(thisAllTags[i + 2][n])) {
-                                    thisInnerSelectAssetOrAfter = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        i += 2;
-
-
-                        if(thisInnerSelectAssetOrAfter || thisInnerSelectAssetOrBefore) {
-                            thisInnerSelectAsset = true;
-                        }
-                    } else if(thisFoundTags[i].includes("--")) {
-                        for(let n = 0; n < thisAllTags[i].length; n++) {
-                            if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
-                                thisInnerSelectAsset = false;
-                                break;
-                            } else {
-                                thisInnerSelectAsset = true;
-                            }
+    
+                // EXCLUDE Complete
+                if(thisRemoveFound === 2) {
+                    if(i + 1 >= thisSearchTags.length || thisSearchTags[i + 1] === ',' || thisSearchTags[i + 1] === '-' || thisSearchTags[i + 1] === '|') {
+                        thisRemoveFound = 0;
+                        thisFoundTagsIndex++;
+    
+                        if(i + 1 >= thisSearchTags.length) {
+                            break;
                         }
                     } else {
-                        for(let n = 0; n < thisAllTags[i].length; n++) {
-                            if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
-                                thisInnerSelectAsset = true;
-                                break;
-                            }
+                        if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "--";
+                        thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i + 1];
+                    }
+                }
+    
+                // AND Complete
+                if(thisAddFound === 1) {
+                    if(i + 1 >= thisSearchTags.length || thisSearchTags[i + 1] === ',' || thisSearchTags[i + 1] === '-' || thisSearchTags[i + 1] === '|') {
+                        thisAddFound = 0;
+                        thisFoundTagsIndex++;
+    
+                        if(i + 1 >= thisSearchTags.length) {
+                            break;
+                        }
+                    } else {
+                        if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "";
+                        thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i + 1];
+                    }
+                }
+            }
+    
+            // Finding correct metatags
+            let thisAllTags = [];
+    
+            thisFoundTags.forEach((tag) => {
+                if(tag !== "|") {
+                    for(let i = 0; i < metatags.length; i++) {
+                        let thisMetatagSplit = metatags[i].toLowerCase().replace(/ /g, "").split(",");
+    
+                        if(thisMetatagSplit.includes(tag.replace("--", ""))) {
+                            thisAllTags[thisAllTags.length] = thisMetatagSplit;
+    
+                            break;
                         }
                     }
-
-                    if(!thisInnerSelectAsset) {
-                        thisSelectAsset = false;
-                        break;
-                    }
+                } else {
+                    thisAllTags[thisAllTags.length] = [""];
                 }
-
-                if(thisSelectAsset) {
-                    searchSelectedAssets.push(x + ";" + thisID);
-                }
-
+            });
+    
+            if(thisAllTags.length != thisFoundTags.length) {
+                setState("Error");
+                return;
             }
-        };
+    
+            // Find assets
+            for(let x = 0; x < assets.length; x++) {
+                for(let thisID = 1; thisID < parseInt(assets[x][0]) + 1; thisID++) {
+                    let thisSplitAssetTags = (assets[x][4 + (thisID - 1) * 3] || "").toLowerCase().replace(/ /g, "").split(",");
+                    let thisSelectAsset = true;
+    
+                    if((assets[x][2 + (thisID - 1) * 3] === "Panel" && !DOMsearchShowPanels.checked) || (assets[x][2 + (thisID - 1) * 3] === "Flash" && !DOMsearchShowFlashes.checked)) {
+                        continue;
+                    }
+                    
+    
+                    for(let i = 0; i < thisFoundTags.length; i++) {
+                        let thisInnerSelectAsset = false;
+    
+                        if(i + 1 < thisFoundTags.length && thisFoundTags[i + 1] === "|") {
+                            let thisInnerSelectAssetOrBefore = false;
+                            let thisInnerSelectAssetOrAfter = false;
+    
+                            // Before
+                            if(thisFoundTags[i].includes("--")) {
+                                for(let n = 0; n < thisAllTags[i].length; n++) {
+                                    if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                        thisInnerSelectAssetOrBefore = false;
+                                        break;
+                                    } else {
+                                        thisInnerSelectAssetOrBefore = true;
+                                    }
+                                }
+                            } else {
+                                for(let n = 0; n < thisAllTags[i].length; n++) {
+                                    if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                        thisInnerSelectAssetOrBefore = true;
+                                        break;
+                                    }
+                                }
+                            }
+    
+                            // After
+                            if(thisFoundTags[i + 2].includes("--")) {
+                                for(let n = 0; n < thisAllTags[i + 2].length; n++) {
+                                    if(thisSplitAssetTags.includes(thisAllTags[i + 2][n])) {
+                                        thisInnerSelectAssetOrAfter = false;
+                                        break;
+                                    } else {
+                                        thisInnerSelectAssetOrAfter = true;
+                                    }
+                                }
+                            } else {
+                                for(let n = 0; n < thisAllTags[i + 2].length; n++) {
+                                    if(thisSplitAssetTags.includes(thisAllTags[i + 2][n])) {
+                                        thisInnerSelectAssetOrAfter = true;
+                                        break;
+                                    }
+                                }
+                            }
+    
+                            i += 2;
+    
+    
+                            if(thisInnerSelectAssetOrAfter || thisInnerSelectAssetOrBefore) {
+                                thisInnerSelectAsset = true;
+                            }
+                        } else if(thisFoundTags[i].includes("--")) {
+                            for(let n = 0; n < thisAllTags[i].length; n++) {
+                                if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                    thisInnerSelectAsset = false;
+                                    break;
+                                } else {
+                                    thisInnerSelectAsset = true;
+                                }
+                            }
+                        } else {
+                            for(let n = 0; n < thisAllTags[i].length; n++) {
+                                if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                    thisInnerSelectAsset = true;
+                                    break;
+                                }
+                            }
+                        }
+    
+                        if(!thisInnerSelectAsset) {
+                            thisSelectAsset = false;
+                            break;
+                        }
+                    }
+    
+                    if(thisSelectAsset) {
+                        searchSelectedAssets.push(x + ";" + thisID);
+                    }
+    
+                }
+            };
+    
+            // Show assets until page limit is reached
+            searchSelectedAssets.forEach((asset) => {
+                createAssetVisualSearch(asset);
+            });
+        }
 
-        // Show assets until page limit is reached
-        searchSelectedAssets.forEach((asset) => {
-            createAssetVisualSearch(asset);
-        });
-
-        
         setState("Idle");
     });
 
@@ -1063,21 +1062,33 @@ document.addEventListener('DOMContentLoaded', () => {
             setState("Processing");
 
             DOMeditOrigin.value = settings[1];
-
+            
             if(assets.length <= 0) {
                 loadAssets();
+            } else {
+                if(prevSettings != settings) {
+                    setState("Idle");
+                    DOMeditSelectBtn.click();
+                }
             }
-
+            
+            prevSettings = settings.slice(0);
             setState("Idle");
         } else if(DOMsearchPage.classList.contains("visible")) {
             setState("Processing");
 
             DOMsearchOrigin.value = settings[1];
-
+            
             if(assets.length <= 0) {
                 loadAssetsSearch();
+            } else {
+                if(prevSettings != settings) {
+                    setState("Idle");
+                    DOMsearchIcon.click();
+                }
             }
-
+            
+            prevSettings = settings.slice(0);
             setState("Idle");
         }
     }
