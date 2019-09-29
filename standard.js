@@ -99,8 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if(settings[2] === "On hover") {
                     img.load(function(obj) {
-                        obj.addEventListener("mouseenter", () => {
-                            img.play();
+                        obj.addEventListener("mousemove", () => {
+                            if(!img.get_playing()) {
+                                img.play();
+                            }
                         });
 
                         obj.addEventListener("mouseleave", () => {
@@ -588,9 +590,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let showAssetPanel = (url) => {
         let thisImageElement = document.createElement("img");
-        thisImageElement.src = url;
+        
+        if(settings[2] === "Auto") {
+            thisImageElement.src = url;
 
-        DOMeditContentContainer.appendChild(thisImageElement);
+            DOMeditContentContainer.appendChild(thisImageElement);
+        } else {
+            thisImageElement.setAttribute("rel:animated_src", url);
+            thisImageElement.setAttribute("rel:auto_play", "0");
+
+            DOMeditContentContainer.appendChild(thisImageElement);
+            
+            let img = new SuperGif({ gif: thisImageElement } );
+
+            if(settings[2] === "On hover") {
+                img.load(function(obj) {
+                    obj.addEventListener("mousemove", () => {
+                        if(!img.get_playing()) {
+                            img.play();
+                        }
+                    });
+
+                    obj.addEventListener("mouseleave", () => {
+                        img.pause();
+                    });
+                });
+            } else if(settings[2] === "On click") {
+                img.load(function(obj) {
+                    obj.addEventListener("click", () => {
+                        if(!img.get_playing()) {
+                            img.play();
+                        } else {
+                            img.pause();
+                        }
+                    });
+                });
+            }
+        }
+
     }
 
     let showAsset = () => {
@@ -603,15 +640,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if(thisPageTypeDat === "Panel") {
             if(DOMeditContentContainer.children[0] !== undefined) {
-                if(DOMeditContentContainer.children[0].tagName !== "IMG") {
-                    while(DOMeditContentContainer.firstChild) {
-                        DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
-                    }
-
-                    showAssetPanel(thisPageLinkDat);
-                } else {
-                    DOMeditContentContainer.children[0].src = thisPageLinkDat;
+                while(DOMeditContentContainer.firstChild) {
+                    DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
                 }
+
+                showAssetPanel(thisPageLinkDat);
             } else {
                 showAssetPanel(thisPageLinkDat);
             }
