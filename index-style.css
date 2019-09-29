@@ -133,6 +133,14 @@
     border: 1px solid #C6c6c6;
 }
 
+#page-search .jsgif_toolbar {
+    min-width: auto !important;
+}
+
+#page-search #searchContentContainer canvas {
+    width: 100%;
+}
+
 /* Edit */
 #page-edit #lowerSegment {
     margin-top: 10px;

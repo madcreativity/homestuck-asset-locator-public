@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let thisAssetTypeData = thisAssetData[2 + thisAssetOffset];
         let thisAssetLinkData = thisAssetData[3 + thisAssetOffset];
 
+        // Change link to local version if offline mode is enabled
         if(settings[0] === "On") {
             let thisAcceptedType = "";
             let thisAssetBase = assetsPath + "\\" + padInt(parseInt(thisSplitData[0]) + 1, 5) + "_" + thisSplitData[1];
@@ -84,9 +85,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if(thisAssetTypeData === "Panel") {
             let searchItemImageElement = document.createElement("img");
 
-            searchItemImageElement.src = thisAssetLinkData;
+            if(settings[2] === "Auto") {
+                searchItemImageElement.src = thisAssetLinkData;
 
-            searchItemContainerElement.appendChild(searchItemImageElement);
+                searchItemContainerElement.appendChild(searchItemImageElement);
+            } else {
+                searchItemImageElement.setAttribute("rel:animated_src", thisAssetLinkData);
+                searchItemImageElement.setAttribute("rel:auto_play", "0");
+                
+                searchItemContainerElement.appendChild(searchItemImageElement);
+
+                let img = new SuperGif({ gif: searchItemImageElement } );
+
+                if(settings[2] === "On hover") {
+                    img.load(function(obj) {
+                        obj.addEventListener("mouseenter", () => {
+                            img.play();
+                        });
+
+                        obj.addEventListener("mouseleave", () => {
+                            img.pause();
+                        });
+                    });
+                } else if(settings[2] === "On click") {
+                    img.load(function(obj) {
+                        obj.addEventListener("click", () => {
+                            if(!img.get_playing()) {
+                                img.play();
+                            } else {
+                                img.pause();
+                            }
+                        });
+                    });
+                }
+            }
         } else if(thisAssetTypeData === "Flash") {
             let thisObjectElement = document.createElement("object");
             let thisParamMovieElement = document.createElement("param");
@@ -1152,7 +1184,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Options - Save changes button
     let DOMdefaultOriginOption = document.querySelector("#defaultOriginOption");
-    //let DOMgifAnimationsOption = document.querySelector("#gifAnimationsOption");
+    let DOMgifAnimationsOption = document.querySelector("#gifAnimationsOption");
     let DOMofflineModeOption = document.querySelector("#offlineModeOption");
 
     let DOMsaveButton = document.querySelector("#saveBtn");
@@ -1161,8 +1193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     DOMsaveButton.addEventListener('click', () => {
         settings[0] = DOMofflineModeOption.textContent;
         settings[1] = DOMdefaultOriginOption.value;
-        //settings[2] = DOMgifAnimationsOption.textContent;
-        settings[2] = "Auto";
+        settings[2] = DOMgifAnimationsOption.textContent;
 
         // Save option data to file
         fs.writeFileSync(settingsPath, 
@@ -1175,7 +1206,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set default origin option
     DOMofflineModeOption.textContent = settings[0];
     DOMdefaultOriginOption.value = settings[1];
-    //DOMgifAnimationsOption.textContent = settings[2];
+    DOMgifAnimationsOption.textContent = settings[2];
     
     // Google Sheets methods
     updateLoadingMessage('Connecting to Google Sheets');

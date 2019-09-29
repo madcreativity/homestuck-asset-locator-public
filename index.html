@@ -47,7 +47,7 @@
                             </div>
         
                             <div id="tagContainer">
-                                <input type="text" id="tagControl" class="std-text" placeholder="ex. Jade --John, Act 6 | Intermission 3">
+                                <input type="text" id="tagControl" class="std-text" placeholder="e.g. john --dave strider | carapace">
                                 <button id="searchIcon"><img src="./assets/search-icon.png"></button>
                             </div>
         
@@ -116,10 +116,10 @@
                             <input type="text" placeholder="Homestuck" id="defaultOriginOption" class="std-text">
                         </div>
     
-                        <!--<div class="optionContainer">
+                        <div class="optionContainer">
                             <label class="std-label">GIF animations:</label>
                             <button id="gifAnimationsOption" class="switch-btn std-btn" data-options="Auto,On click,On hover">Auto</button>
-                        </div>-->
+                        </div>
 
                         <div class="optionContainer">
                             <label class="std-label">Offline mode:</label>
@@ -141,7 +141,10 @@
             </div>
         </main>
 
-
-        <script>require('./standard.js');</script>
+        <script src="./libgif-js-master/libgif.js"></script>
+        <script src="./libgif-js-master/rubbable.js"></script>
+        <script>
+            require('./standard.js');
+        </script>
     </body>
 </html>
