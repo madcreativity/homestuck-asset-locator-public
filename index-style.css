@@ -119,6 +119,28 @@
     cursor: pointer;
 }
 
+#page-search #lowerSegment {
+    margin-bottom: 50px;
+}
+
+#page-search #upperSegment > .goto-btn {
+    position: fixed;
+    bottom: 0;
+    margin: 10px;
+    background-color: #EEEEEE;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    border: 1px solid #C6c6c6;
+}
+
+#page-search .jsgif_toolbar {
+    min-width: auto !important;
+}
+
+#page-search #searchContentContainer canvas {
+    width: 100%;
+}
+
 /* Edit */
 #page-edit #lowerSegment {
     margin-top: 10px;
@@ -276,18 +298,24 @@
         padding-bottom: 40px;
     }
 
+    #page-search #lowerSegment {
+        margin-bottom: 0;
+    }
+
     #page-search #upperSegment > .goto-btn {
         position: fixed;
         bottom: 0;
         z-index: 200;
         width: 100%;
         background-color: #EEE;
+        border: 0;
         border-top: 1px solid #C6C6C6;
         box-sizing: border-box;
         line-height: 30px;
         padding: 5px 10px;
         text-align: left;
         color: #0000EE;
+        margin: 0;
     }
 }
 

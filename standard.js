@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // System variables
     const ALPHABET =  ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "Y", "Z"];
 
-    const version = "beta v0.8";
+    const version = "Vol v1.0";
     let settings = [];
     
     let spreadsheet = "1LcLcP9pUPirSWj2by1_CF4JSO8ArcgjyTLVtHAziJZ0";
@@ -62,15 +62,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let thisAssetTypeData = thisAssetData[2 + thisAssetOffset];
         let thisAssetLinkData = thisAssetData[3 + thisAssetOffset];
+
+        // Change link to local version if offline mode is enabled
+        if(settings[0] === "On") {
+            let thisAcceptedType = "";
+            let thisAssetBase = assetsPath + "\\" + padInt(parseInt(thisSplitData[0]) + 1, 5) + "_" + thisSplitData[1];
+
+            if(fileExists(thisAssetBase + ".gif")) {
+                thisAcceptedType = ".gif";
+            } else if(fileExists(thisAssetBase + ".png")) {
+                thisAcceptedType = ".png";
+            } else if(fileExists(thisAssetBase + ".swf")) {
+                thisAcceptedType = ".swf";
+            }
+
+            thisAssetLinkData = thisAssetBase + thisAcceptedType;
+        }
+        
         
         // Elements
         let searchItemContainerElement = document.createElement("div");
         if(thisAssetTypeData === "Panel") {
             let searchItemImageElement = document.createElement("img");
 
-            searchItemImageElement.src = thisAssetLinkData;
+            if(settings[2] === "Auto") {
+                searchItemImageElement.src = thisAssetLinkData;
 
-            searchItemContainerElement.appendChild(searchItemImageElement);
+                searchItemContainerElement.appendChild(searchItemImageElement);
+            } else {
+                searchItemImageElement.setAttribute("rel:animated_src", thisAssetLinkData);
+                searchItemImageElement.setAttribute("rel:auto_play", "0");
+                
+                searchItemContainerElement.appendChild(searchItemImageElement);
+
+                let img = new SuperGif({ gif: searchItemImageElement } );
+
+                if(settings[2] === "On hover") {
+                    img.load(function(obj) {
+                        obj.addEventListener("mousemove", () => {
+                            if(!img.get_playing()) {
+                                img.play();
+                            }
+                        });
+
+                        obj.addEventListener("mouseleave", () => {
+                            img.pause();
+                        });
+                    });
+                } else if(settings[2] === "On click") {
+                    img.load(function(obj) {
+                        obj.addEventListener("click", () => {
+                            if(!img.get_playing()) {
+                                img.play();
+                            } else {
+                                img.pause();
+                            }
+                        });
+                    });
+                }
+            }
         } else if(thisAssetTypeData === "Flash") {
             let thisObjectElement = document.createElement("object");
             let thisParamMovieElement = document.createElement("param");
@@ -174,7 +224,9 @@ document.addEventListener('DOMContentLoaded', () => {
             new Promise((resolve, reject) => {
                 client.authorize((err, tokens) => {
                     if (err) {
-                        createAlert("Error", "Could not connect to Google Service.");
+                        settings[0] = "On";
+                        setState("Offline");
+                        createAlert("Error", "Could not connect to Google Service. Offline mode is being enabled for you.");
                     } else {
                         google.options({
                             auth: client
@@ -296,6 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load settings
     settings = fs.readFileSync(settingsPath).toString().split(',');
+    let prevSettings = settings;
 
     
     // Metatag cache
@@ -399,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Edit page -- asset functionality
     let curOrigin = "";
     let curPage = 1;
-    let curID = 1
+    let curID = 1;
     let origins = [];
     let assets = [];
 
@@ -495,7 +548,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadAssetsFunc(DOMsearchOrigin.value);
             }
         } else {
-            // TODO: Load offline assets correctly
             let thisOrigins = JSON.parse(fs.readFileSync(app.getPath('userData') + "\\origin_cache.txt").toString());
             origins = [];
             
@@ -539,9 +591,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let showAssetPanel = (url) => {
         let thisImageElement = document.createElement("img");
-        thisImageElement.src = url;
+        
+        if(settings[2] === "Auto") {
+            thisImageElement.src = url;
 
-        DOMeditContentContainer.appendChild(thisImageElement);
+            DOMeditContentContainer.appendChild(thisImageElement);
+        } else {
+            thisImageElement.setAttribute("rel:animated_src", url);
+            thisImageElement.setAttribute("rel:auto_play", "0");
+
+            DOMeditContentContainer.appendChild(thisImageElement);
+            
+            let img = new SuperGif({ gif: thisImageElement } );
+
+            if(settings[2] === "On hover") {
+                img.load(function(obj) {
+                    obj.addEventListener("mousemove", () => {
+                        if(!img.get_playing()) {
+                            img.play();
+                        }
+                    });
+
+                    obj.addEventListener("mouseleave", () => {
+                        img.pause();
+                    });
+                });
+            } else if(settings[2] === "On click") {
+                img.load(function(obj) {
+                    obj.addEventListener("click", () => {
+                        if(!img.get_playing()) {
+                            img.play();
+                        } else {
+                            img.pause();
+                        }
+                    });
+                });
+            }
+        }
+
     }
 
     let showAsset = () => {
@@ -554,15 +641,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if(thisPageTypeDat === "Panel") {
             if(DOMeditContentContainer.children[0] !== undefined) {
-                if(DOMeditContentContainer.children[0].tagName !== "IMG") {
-                    while(DOMeditContentContainer.firstChild) {
-                        DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
-                    }
-
-                    showAssetPanel(thisPageLinkDat);
-                } else {
-                    DOMeditContentContainer.children[0].src = thisPageLinkDat;
+                while(DOMeditContentContainer.firstChild) {
+                    DOMeditContentContainer.removeChild(DOMeditContentContainer.firstChild);
                 }
+
+                showAssetPanel(thisPageLinkDat);
             } else {
                 showAssetPanel(thisPageLinkDat);
             }
@@ -636,13 +719,12 @@ document.addEventListener('DOMContentLoaded', () => {
     DOMeditSelectBtn.addEventListener('click', () => {
         if(getState() !== "Processing") {
             setState("Processing");
-
+            
             curPage = parseInt(DOMeditPageField.value);
             curID = parseInt(DOMeditIdField.value);
 
             if(DOMeditOrigin.value !== curOrigin) {
                 curOrigin = DOMeditOrigin.value;
-                console.log(curOrigin);
                 loadAssets();
             } else {
                 showAsset();
@@ -765,223 +847,220 @@ document.addEventListener('DOMContentLoaded', () => {
     // Search -- Search button
     DOMsearchIcon.addEventListener("click", () => {
         setState("Processing");
-        
-        let thisSearchTags = DOMsearchTags.value.toLowerCase().replace(/ /g, "");
-        searchSelectedAssets = [];
 
-        while(DOMsearchContentContainer.firstChild) {
-            DOMsearchContentContainer.removeChild(DOMsearchContentContainer.firstChild);
-        }
-
-        let thisSplitSearchTags = thisSearchTags.split(",");
-
-        // Find tags
-        let thisAddFound = 0;
-        let thisRemoveFound = 0;
-
-        let thisFoundTags = [];
-        let thisFoundTagsIndex = 0;
-
-        for(let i = 0; i < thisSearchTags.length; i++) {
-            // EXCLUDE
-            if(thisSearchTags[i] === '-') {
-                if(thisRemoveFound === 1) {
-                    thisRemoveFound = 2
-                } else if(thisRemoveFound === 0) {
-                    thisRemoveFound = 1;
-                }
-            } else if(thisRemoveFound === 1) {
-                thisRemoveFound = 0;
+        if(DOMsearchTags.value.replace(/ /g, "") !== "") {
+            let thisSearchTags = DOMsearchTags.value.toLowerCase().replace(/ /g, "");
+            searchSelectedAssets = [];
+            
+            while(DOMsearchContentContainer.firstChild) {
+                DOMsearchContentContainer.removeChild(DOMsearchContentContainer.firstChild);
             }
-
-            // ADD Initial Catch
-            if(i === 0 && thisRemoveFound === 0) {
-                thisAddFound = 1;
-                if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "";
-                thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i];
-            }
-
-            // ADD
-            if(thisSearchTags[i] === ',' && thisAddFound === 0) {
-                thisAddFound = 1;
-            }
-
-            // OR
-            if(thisSearchTags[i] === '|') {
-                thisFoundTags[thisFoundTagsIndex] = "|";
-                thisFoundTagsIndex++;
-
-                if(i + 1 < thisSearchTags.length) {
-                    if(thisSearchTags[i + 1] !== '-') {
-                        thisAddFound = 1;
+    
+            // Find tags
+            let thisAddFound = 0;
+            let thisRemoveFound = 0;
+    
+            let thisFoundTags = [];
+            let thisFoundTagsIndex = 0;
+    
+            for(let i = 0; i < thisSearchTags.length; i++) {
+                // EXCLUDE
+                if(thisSearchTags[i] === '-') {
+                    if(thisRemoveFound === 1) {
+                        thisRemoveFound = 2
+                    } else if(thisRemoveFound === 0) {
+                        thisRemoveFound = 1;
                     }
-                }
-            }
-
-            // EXCLUDE Complete
-            if(thisRemoveFound === 2) {
-                if(i + 1 >= thisSearchTags.length || thisSearchTags[i + 1] === ',' || thisSearchTags[i + 1] === '-' || thisSearchTags[i + 1] === '|') {
+                } else if(thisRemoveFound === 1) {
                     thisRemoveFound = 0;
-                    thisFoundTagsIndex++;
-
-                    if(i + 1 >= thisSearchTags.length) {
-                        break;
-                    }
-                } else {
-                    if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "--";
-                    thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i + 1];
                 }
-            }
-
-            // AND Complete
-            if(thisAddFound === 1) {
-                if(i + 1 >= thisSearchTags.length || thisSearchTags[i + 1] === ',' || thisSearchTags[i + 1] === '-' || thisSearchTags[i + 1] === '|') {
-                    thisAddFound = 0;
-                    thisFoundTagsIndex++;
-
-                    if(i + 1 >= thisSearchTags.length) {
-                        break;
-                    }
-                } else {
+    
+                // ADD Initial Catch
+                if(i === 0 && thisRemoveFound === 0) {
+                    thisAddFound = 1;
                     if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "";
-                    thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i + 1];
+                    thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i];
                 }
-            }
-        }
-
-        // Finding correct metatags
-        let thisAllTags = [];
-        let thisCurTag = 0;
-
-        thisFoundTags.forEach((tag) => {
-            thisCurTag++;
-
-            if(tag !== "|") {
-                for(let i = 0; i < metatags.length; i++) {
-                    let thisMetatagSplit = metatags[i].toLowerCase().replace(/ /g, "").split(",");
-                    
-                    if(thisMetatagSplit.includes(tag.replace("--", ""))) {
-                        thisAllTags[thisAllTags.length] = thisMetatagSplit;
-                        
-                        break;
+    
+                // ADD
+                if(thisSearchTags[i] === ',' && thisAddFound === 0) {
+                    thisAddFound = 1;
+                }
+    
+                // OR
+                if(thisSearchTags[i] === '|') {
+                    thisFoundTags[thisFoundTagsIndex] = "|";
+                    thisFoundTagsIndex++;
+    
+                    if(i + 1 < thisSearchTags.length) {
+                        if(thisSearchTags[i + 1] !== '-') {
+                            thisAddFound = 1;
+                        }
                     }
                 }
-                
-                if(thisAllTags.length < thisCurTag) {
-                    thisAllTags[thisAllTags.length] = tag.replace("--", "");
-                }
-            } else {
-                thisAllTags[thisAllTags.length] = [""];
-            }
-        });
-
-        console.log(thisAllTags);
-        
-        if(thisAllTags.length != thisFoundTags.length) {
-            setState("Error");
-            return;
-        }
-
-        // Find assets
-        for(let x = 0; x < assets.length; x++) {
-            for(let thisID = 1; thisID < 1 + Math.ceil((assets[x].length - 4) / 3); thisID++) {
-                let thisSplitAssetTags = assets[x][4 + (thisID - 1) * 3].toLowerCase().replace(/ /g, "").split(",");
-                let thisSelectAsset = true;
-
-                if((assets[x][2 + (thisID - 1) * 3] === "Panel" && !DOMsearchShowPanels.checked) || (assets[x][2 + (thisID - 1) * 3] === "Flash" && !DOMsearchShowFlashes.checked)) {
-                    continue;
-                }
-                
-
-                for(let i = 0; i < thisFoundTags.length; i++) {
-                    let thisInnerSelectAsset = false;
-
-                    if(i + 1 < thisFoundTags.length && thisFoundTags[i + 1] === "|") {
-                        // TODO: OR search syntax
-                        let thisInnerSelectAssetOrBefore = false;
-                        let thisInnerSelectAssetOrAfter = false;
-
-                        // Before
-                        if(thisFoundTags[i].includes("--")) {
-                            for(let n = 0; n < thisAllTags[i].length; n++) {
-                                if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
-                                    thisInnerSelectAssetOrBefore = false;
-                                    break;
-                                } else {
-                                    thisInnerSelectAssetOrBefore = true;
-                                }
-                            }
-                        } else {
-                            for(let n = 0; n < thisAllTags[i].length; n++) {
-                                if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
-                                    thisInnerSelectAssetOrBefore = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        // After
-                        if(thisFoundTags[i + 2].includes("--")) {
-                            for(let n = 0; n < thisAllTags[i + 2].length; n++) {
-                                if(thisSplitAssetTags.includes(thisAllTags[i + 2][n])) {
-                                    thisInnerSelectAssetOrAfter = false;
-                                    break;
-                                } else {
-                                    thisInnerSelectAssetOrAfter = true;
-                                }
-                            }
-                        } else {
-                            for(let n = 0; n < thisAllTags[i + 2].length; n++) {
-                                if(thisSplitAssetTags.includes(thisAllTags[i + 2][n])) {
-                                    thisInnerSelectAssetOrAfter = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        i += 2;
-
-
-                        if(thisInnerSelectAssetOrAfter || thisInnerSelectAssetOrBefore) {
-                            thisInnerSelectAsset = true;
-                        }
-                    } else if(thisFoundTags[i].includes("--")) {
-                        for(let n = 0; n < thisAllTags[i].length; n++) {
-                            if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
-                                thisInnerSelectAsset = false;
-                                break;
-                            } else {
-                                thisInnerSelectAsset = true;
-                            }
+    
+                // EXCLUDE Complete
+                if(thisRemoveFound === 2) {
+                    if(i + 1 >= thisSearchTags.length || thisSearchTags[i + 1] === ',' || thisSearchTags[i + 1] === '-' || thisSearchTags[i + 1] === '|') {
+                        thisRemoveFound = 0;
+                        thisFoundTagsIndex++;
+    
+                        if(i + 1 >= thisSearchTags.length) {
+                            break;
                         }
                     } else {
-                        for(let n = 0; n < thisAllTags[i].length; n++) {
-                            if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
-                                thisInnerSelectAsset = true;
-                                break;
-                            }
+                        if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "--";
+                        thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i + 1];
+                    }
+                }
+    
+                // AND Complete
+                if(thisAddFound === 1) {
+                    if(i + 1 >= thisSearchTags.length || thisSearchTags[i + 1] === ',' || thisSearchTags[i + 1] === '-' || thisSearchTags[i + 1] === '|') {
+                        thisAddFound = 0;
+                        thisFoundTagsIndex++;
+    
+                        if(i + 1 >= thisSearchTags.length) {
+                            break;
+                        }
+                    } else {
+                        if(thisFoundTags.length <= thisFoundTagsIndex) thisFoundTags[thisFoundTagsIndex] = "";
+                        thisFoundTags[thisFoundTagsIndex] += thisSearchTags[i + 1];
+                    }
+                }
+            }
+    
+            // Finding correct metatags
+            let thisAllTags = [];
+            let thisCurTag = 0;
+
+            thisFoundTags.forEach((tag) => {
+                thisCurTag++;
+    
+                if(tag !== "|") {
+                    for(let i = 0; i < metatags.length; i++) {
+                        let thisMetatagSplit = metatags[i].toLowerCase().replace(/ /g, "").split(",");
+                        
+                        if(thisMetatagSplit.includes(tag.replace("--", ""))) {
+                            thisAllTags[thisAllTags.length] = thisMetatagSplit;
+                            
+                            break;
                         }
                     }
-
-                    if(!thisInnerSelectAsset) {
-                        thisSelectAsset = false;
-                        break;
+                    
+                    if(thisAllTags.length < thisCurTag) {
+                        thisAllTags[thisAllTags.length] = tag.replace("--", "");
                     }
+                } else {
+                    thisAllTags[thisAllTags.length] = [""];
                 }
-
-                if(thisSelectAsset) {
-                    searchSelectedAssets.push(x + ";" + thisID);
-                }
-
+            });
+    
+            if(thisAllTags.length != thisFoundTags.length) {
+                setState("Error");
+                return;
             }
-        };
+    
+            // Find assets
+            for(let x = 0; x < assets.length; x++) {
+                for(let thisID = 1; thisID < parseInt(assets[x][0]) + 1; thisID++) {
+                    let thisSplitAssetTags = (assets[x][4 + (thisID - 1) * 3] || "").toLowerCase().replace(/ /g, "").split(",");
+                    let thisSelectAsset = true;
+                    
+                    if((assets[x][2 + (thisID - 1) * 3] === "Panel" && !DOMsearchShowPanels.checked) || (assets[x][2 + (thisID - 1) * 3] === "Flash" && !DOMsearchShowFlashes.checked)) {
+                        continue;
+                    }
+                    
+    
+                    for(let i = 0; i < thisFoundTags.length; i++) {
+                        let thisInnerSelectAsset = false;
+    
+                        if(i + 1 < thisFoundTags.length && thisFoundTags[i + 1] === "|") {
+                            let thisInnerSelectAssetOrBefore = false;
+                            let thisInnerSelectAssetOrAfter = false;
+    
+                            // Before
+                            if(thisFoundTags[i].includes("--")) {
+                                for(let n = 0; n < thisAllTags[i].length; n++) {
+                                    if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                        thisInnerSelectAssetOrBefore = false;
+                                        break;
+                                    } else {
+                                        thisInnerSelectAssetOrBefore = true;
+                                    }
+                                }
+                            } else {
+                                for(let n = 0; n < thisAllTags[i].length; n++) {
+                                    if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                        thisInnerSelectAssetOrBefore = true;
+                                        break;
+                                    }
+                                }
+                            }
+    
+                            // After
+                            if(thisFoundTags[i + 2].includes("--")) {
+                                for(let n = 0; n < thisAllTags[i + 2].length; n++) {
+                                    if(thisSplitAssetTags.includes(thisAllTags[i + 2][n])) {
+                                        thisInnerSelectAssetOrAfter = false;
+                                        break;
+                                    } else {
+                                        thisInnerSelectAssetOrAfter = true;
+                                    }
+                                }
+                            } else {
+                                for(let n = 0; n < thisAllTags[i + 2].length; n++) {
+                                    if(thisSplitAssetTags.includes(thisAllTags[i + 2][n])) {
+                                        thisInnerSelectAssetOrAfter = true;
+                                        break;
+                                    }
+                                }
+                            }
+    
+                            i += 2;
+    
+    
+                            if(thisInnerSelectAssetOrAfter || thisInnerSelectAssetOrBefore) {
+                                thisInnerSelectAsset = true;
+                            }
+                        } else if(thisFoundTags[i].includes("--")) {
+                            for(let n = 0; n < thisAllTags[i].length; n++) {
+                                if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                    thisInnerSelectAsset = false;
+                                    break;
+                                } else {
+                                    thisInnerSelectAsset = true;
+                                }
+                            }
+                        } else {
+                            for(let n = 0; n < thisAllTags[i].length; n++) {
+                                console.log(thisAllTags[i][n]);
+                                if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
+                                    thisInnerSelectAsset = true;
+                                    break;
+                                }
+                            }
+                        }
+    
+                        if(!thisInnerSelectAsset) {
+                            thisSelectAsset = false;
+                            break;
+                        }
+                    }
+    
+                    if(thisSelectAsset) {
+                        searchSelectedAssets.push(x + ";" + thisID);
+                    }
+    
+                }
+            };
+    
+            // Show assets until page limit is reached
+            searchSelectedAssets.forEach((asset) => {
+                createAssetVisualSearch(asset);
+            });
+        }
 
-        // Show assets until page limit is reached
-        searchSelectedAssets.forEach((asset) => {
-            createAssetVisualSearch(asset);
-        });
-
-        
         setState("Idle");
     });
 
@@ -991,21 +1070,42 @@ document.addEventListener('DOMContentLoaded', () => {
             setState("Processing");
 
             DOMeditOrigin.value = settings[1];
-
+            
             if(assets.length <= 0) {
                 loadAssets();
-            }
+            } else {
+                if(DOMeditPageField.value === "" && DOMeditIdField.value === "") {
+                    DOMeditPageField.value = "1";
+                    DOMeditIdField.value = "1";
 
+                    curOrigin = settings[1];
+                    curPage = 1;
+                    curID = 1;
+                }
+
+                if(prevSettings != settings) {
+                    setState("Idle");
+                    DOMeditSelectBtn.click();
+                }
+            }
+            
+            prevSettings = settings.slice(0);
             setState("Idle");
         } else if(DOMsearchPage.classList.contains("visible")) {
             setState("Processing");
 
             DOMsearchOrigin.value = settings[1];
-
+            
             if(assets.length <= 0) {
                 loadAssetsSearch();
+            } else {
+                if(prevSettings != settings) {
+                    setState("Idle");
+                    DOMsearchIcon.click();
+                }
             }
-
+            
+            prevSettings = settings.slice(0);
             setState("Idle");
         }
     }
@@ -1119,29 +1219,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Options: Reconnect to service
     let DOMreconnectServiceOptionBtn = document.querySelector("#reconnectServiceOptionBtn");
     DOMreconnectServiceOptionBtn.addEventListener('click', () => {
-        if(settings[0] == "Off") {
-            googleSheetsConnected = true;
-            
-            try {
-                googleObject.createClient(__dirname + "\\volunteer.json", [
-                    'https://www.googleapis.com/auth/spreadsheets'
-                ]);
-                googleObject.connectSheetsService();
-            }
-            catch(err) {
-                googleSheetsConnected = false;
-                console.error(err);
-                setState("Offline");
-
-                createAlert("Error", "Could not connect to Google Service.");
-            }
+        googleSheetsConnected = true;
     
-            if(googleSheetsConnected) {
-                setState("Online");
-            }
+        try {
+            googleObject.createClient(__dirname + "\\volunteer.json", [
+                'https://www.googleapis.com/auth/spreadsheets'
+            ]);
+            googleObject.connectSheetsService();
+        }
+        catch(err) {
+            googleSheetsConnected = false;
+            console.error(err);
+        }
+        
+        if(googleSheetsConnected) {
+            setState("Online");
+            createAlert("Info", "Succesfully connected to Google Sheets.");
         } else {
-
-            createAlert("Error", "Cannot connect to Google Service with offline mode enabled.");
+            settings[0] = "On";
+            setState("Offline");
+            createAlert("Error", "Could not connect to Google Sheets. Offline mode is being enabled for you.");
         }
     });
 
@@ -1155,16 +1252,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     DOMsaveButton.addEventListener('click', () => {
-        // Save option data to file
-        fs.writeFileSync(settingsPath, 
-            DOMofflineModeOption.textContent + ","
-          + DOMdefaultOriginOption.value + ","
-          + DOMgifAnimationsOption.textContent
-        );
-
         settings[0] = DOMofflineModeOption.textContent;
         settings[1] = DOMdefaultOriginOption.value;
         settings[2] = DOMgifAnimationsOption.textContent;
+
+        // Save option data to file
+        fs.writeFileSync(settingsPath, 
+            settings[0] + ","
+          + settings[1] + ","
+          + settings[2]
+        );
     });
 
     // Set default origin option
@@ -1177,7 +1274,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let googleObject = new GoogleService();
     
-    if(settings[0] == "Off") {
+    if(settings[0] === "Off") {
         googleSheetsConnected = true;
         
         try {
@@ -1190,15 +1287,17 @@ document.addEventListener('DOMContentLoaded', () => {
             googleSheetsConnected = false;
             console.error(err);
         }
-
+        
         if(googleSheetsConnected) {
             setState("Online");
-            updateLoadingMessage("Succesfully connected to Google Sheets");
         } else {
-            updateLoadingMessage("Could not connect to Google Sheets");
+            settings[0] = "On";
+            setState("Offline");
+            createAlert("Error", "Could not connect to Google Sheets. Offline mode is being enabled for you.");
         }
     } else {
         setState("Offline");
+        createAlert("Info", "Offline mode is enabled.");
     }
 
 
@@ -1224,7 +1323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         z = z || '0';
         n = n + '';
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-      }
+    }
 
 
     // Finished loading
