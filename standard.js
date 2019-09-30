@@ -851,23 +851,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Finding correct metatags
         let thisAllTags = [];
+        let thisCurTag = 0;
 
         thisFoundTags.forEach((tag) => {
+            thisCurTag++;
+
             if(tag !== "|") {
                 for(let i = 0; i < metatags.length; i++) {
                     let thisMetatagSplit = metatags[i].toLowerCase().replace(/ /g, "").split(",");
-
+                    
                     if(thisMetatagSplit.includes(tag.replace("--", ""))) {
                         thisAllTags[thisAllTags.length] = thisMetatagSplit;
-
+                        
                         break;
                     }
+                }
+                
+                if(thisAllTags.length < thisCurTag) {
+                    thisAllTags[thisAllTags.length] = tag.replace("--", "");
                 }
             } else {
                 thisAllTags[thisAllTags.length] = [""];
             }
         });
 
+        console.log(thisAllTags);
+        
         if(thisAllTags.length != thisFoundTags.length) {
             setState("Error");
             return;
