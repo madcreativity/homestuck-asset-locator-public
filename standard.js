@@ -949,7 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     if(thisAllTags.length < thisCurTag) {
-                        thisAllTags[thisAllTags.length] = tag.replace("--", "");
+                        thisAllTags[thisAllTags.length] = [tag.replace("--", "")];
                     }
                 } else {
                     thisAllTags[thisAllTags.length] = [""];
@@ -1034,7 +1034,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         } else {
                             for(let n = 0; n < thisAllTags[i].length; n++) {
-                                console.log(thisAllTags[i][n]);
                                 if(thisSplitAssetTags.includes(thisAllTags[i][n])) {
                                     thisInnerSelectAsset = true;
                                     break;
