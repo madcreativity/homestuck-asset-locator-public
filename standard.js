@@ -466,20 +466,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let getOrigins = (callback, originValue) => {
-        let localOrigins = [];
-        origins = [];
+        if(googleObject.service !== null) {
+            let localOrigins = [];
+            origins = [];
 
-        googleObject.getFieldData(spreadsheet, "1:1").then((result) => {
-            localOrigins = result.data.values[0];
+            googleObject.getFieldData(spreadsheet, "1:1").then((result) => {
+                localOrigins = result.data.values[0];
 
-            for(let i = 0; i < localOrigins.length - 1; i += 4) {
-                let originSplit = localOrigins[i + 1].split('-');
-                let originMetatagSplit = localOrigins[i + 3].split('-');
-                origins.push(new Origin(localOrigins[i], originSplit[0], originSplit[1], localOrigins[i + 2], originMetatagSplit[0], originMetatagSplit[1]));
-            }
+                for(let i = 0; i < localOrigins.length - 1; i += 4) {
+                    let originSplit = localOrigins[i + 1].split('-');
+                    let originMetatagSplit = localOrigins[i + 3].split('-');
+                    origins.push(new Origin(localOrigins[i], originSplit[0], originSplit[1], localOrigins[i + 2], originMetatagSplit[0], originMetatagSplit[1]));
+                }
 
-            callback(originValue);
-        });
+                callback(originValue);
+            });
+        } else {
+            createAlert("Info", "Google Service is not connected. Please go to the options and press the \"Reconnect to service\" button before proceeding.");
+        }
     }
 
     let loadAssetsFunc = (originValue) => {
