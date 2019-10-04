@@ -1306,11 +1306,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 let thisFileName = assetsPath + "\\" + padInt(parseInt(e.target.getAttribute("data-asset").split(";")[0]) + 1, 5) + "_" + e.target.getAttribute("data-asset").split(";")[1];
                 
                 if(fileExists(thisFileName + ".gif")) {
-                    shell.showItemInFolder(thisFileName + ".gif");
+                    ipcRenderer.send('request-mainprocess-action', {
+                        message: "showItemInFolder",
+                        data: thisFileName + ".gif"
+                    });
                 } else if(fileExists(thisFileName + ".png")) {
-                    shell.showItemInFolder(thisFileName + ".png");
+                    ipcRenderer.send('request-mainprocess-action', {
+                        message: "showItemInFolder",
+                        data: thisFileName + ".png"
+                    });
                 } else if(fileExists(thisFileName + ".swf")) {
-                    shell.showItemInFolder( thisFileName + ".swf");
+                    ipcRenderer.send('request-mainprocess-action', {
+                        message: "showItemInFolder",
+                        data: thisFileName + ".swf"
+                    });
                 }
             } else {
                 shell.openExternal(origins[0].originLink + (parseInt(e.target.getAttribute("data-asset").split(";")[0]) + 1));

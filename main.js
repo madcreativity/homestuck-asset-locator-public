@@ -1,4 +1,4 @@
-const { ipcMain, app, BrowserWindow } = require('electron');
+const { ipcMain, app, BrowserWindow, shell } = require('electron');
 const path = require('path');
 
 let loadingWin;
@@ -83,6 +83,8 @@ ipcMain.on('request-mainprocess-action', (event, arg) => {
         loadingComplete = true;
     } else if(arg.message == "updateLoadingText") {
         loadingWin.webContents.executeJavaScript('document.querySelector("h2").textContent = "' + arg.data + '";');
+    } else if(arg.message == "showItemInFolder") {
+        shell.showItemInFolder(arg.data);
     }
 });
 
